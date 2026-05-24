@@ -5,6 +5,7 @@ import type { NextConfig } from "next";
 dotenv.config();
 
 const nextConfig: NextConfig = {
+	allowedDevOrigins: ["192.168.1.96"],
 	output: "standalone",
 	cacheComponents: true,
 	reactCompiler: true,

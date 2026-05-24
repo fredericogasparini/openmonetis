@@ -341,6 +341,10 @@ export function TransactionDialog({
 				formState.condition === "Recorrente" && formState.recurrenceCount
 					? Number(formState.recurrenceCount)
 					: undefined,
+			recurrenceInterval:
+				formState.condition === "Recorrente" && formState.recurrenceInterval
+					? formState.recurrenceInterval as CreateTransactionInput["recurrenceInterval"]
+					: "Mensal",
 			dueDate:
 				formState.paymentMethod === "Boleto" && formState.dueDate
 					? formState.dueDate

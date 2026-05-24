@@ -11,6 +11,7 @@ import {
 } from "@/db/schema";
 import {
 	PAYMENT_METHODS,
+	RECURRENCE_INTERVALS,
 	TRANSACTION_CONDITIONS,
 	TRANSACTION_TYPES,
 } from "@/features/transactions/lib/constants";
@@ -24,7 +25,7 @@ import { revalidateForEntity } from "@/shared/lib/actions/helpers";
 import { db } from "@/shared/lib/db";
 import { INVOICE_PAYMENT_STATUS } from "@/shared/lib/invoices";
 import { noteSchema, uuidSchema } from "@/shared/lib/schemas/common";
-import { addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
+import { advanceDateByInterval, addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
 import { addMonthsToPeriod, MONTH_NAMES } from "@/shared/utils/period";
 
 // ============================================================================
@@ -347,6 +348,9 @@ const baseFields = z.object({
 		.min(1, "Selecione uma recorrência válida.")
 		.max(60, "Selecione uma recorrência válida.")
 		.optional(),
+	recurrenceInterval: z.enum(RECURRENCE_INTERVALS)
+		.optional()
+		.default("Mensal"),
 	dueDate: z
 		.string()
 		.trim()

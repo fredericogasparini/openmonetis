@@ -577,6 +577,7 @@ export const mapTransactionsData = (rows: TransactionRowWithRelations[]) =>
 		categoriaIcon: item.category?.icon ?? null,
 		installmentCount: item.installmentCount ?? null,
 		recurrenceCount: item.recurrenceCount ?? null,
+		recurrenceInterval: item.recurrenceInterval ?? null,
 		currentInstallment: item.currentInstallment ?? null,
 		dueDate: item.dueDate ? item.dueDate.toISOString().slice(0, 10) : null,
 		boletoPaymentDate: item.boletoPaymentDate

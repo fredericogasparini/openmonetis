@@ -82,6 +82,7 @@ export type TransactionFormState = {
 	installmentCount: string;
 	startInstallment: string;
 	recurrenceCount: string;
+	recurrenceInterval: string;
 	dueDate: string;
 	boletoPaymentDate: string;
 	note: string;
@@ -204,6 +205,7 @@ export function buildTransactionInitialState(
 		recurrenceCount: transaction?.recurrenceCount
 			? String(transaction.recurrenceCount)
 			: "",
+		recurrenceInterval: transaction?.recurrenceInterval ?? "Mensal",
 		dueDate: transaction?.dueDate ?? "",
 		boletoPaymentDate,
 		note: transaction?.note ?? "",

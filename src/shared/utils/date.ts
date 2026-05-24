@@ -284,6 +284,36 @@ export function addMonthsToDate(value: Date, offset: number): Date {
 	return result;
 }
 
+export function advanceDateByInterval(
+	value: Date,
+	offset: number,
+	interval: string,
+): Date {
+	const result = new Date(value);
+	switch (interval) {
+		case "Diário":
+			result.setDate(result.getDate() + offset);
+			return result;
+		case "Semanal":
+			result.setDate(result.getDate() + offset * 7);
+			return result;
+		case "Quinzenal":
+			result.setDate(result.getDate() + offset * 14);
+			return result;
+		case "Bimestral":
+			return addMonthsToDate(value, offset * 2);
+		case "Trimestral":
+			return addMonthsToDate(value, offset * 3);
+		case "Semestral":
+			return addMonthsToDate(value, offset * 6);
+		case "Anual":
+			return addMonthsToDate(value, offset * 12);
+		case "Mensal":
+		default:
+			return addMonthsToDate(value, offset);
+	}
+}
+
 // ============================================================================
 // DATE FORMATTING
 // ============================================================================

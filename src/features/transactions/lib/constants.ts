@@ -10,6 +10,17 @@ export const TRANSACTION_CONDITIONS = [
 	"Recorrente",
 ] as const;
 
+export const RECURRENCE_INTERVALS = [
+	"Diário",
+	"Semanal",
+	"Quinzenal",
+	"Mensal",
+	"Bimestral",
+	"Trimestral",
+	"Semestral",
+	"Anual",
+] as const;
+
 export const PAYMENT_METHODS = [
 	"Cartão de crédito",
 	"Cartão de débito",

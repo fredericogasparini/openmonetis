@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TRANSACTION_CONDITIONS } from "@/features/transactions/lib/constants";
+import { RECURRENCE_INTERVALS, TRANSACTION_CONDITIONS } from "@/features/transactions/lib/constants";
 import { Label } from "@/shared/components/ui/label";
 import {
 	Popover,
@@ -97,16 +97,16 @@ export function ConditionSection({
 	const installmentCount = Number(formState.installmentCount);
 	const installmentSummary =
 		showInstallments &&
-		formState.installmentCount &&
-		!Number.isNaN(installmentCount) &&
-		installmentCount > 0
+			formState.installmentCount &&
+			!Number.isNaN(installmentCount) &&
+			installmentCount > 0
 			? getInstallmentLabel(installmentCount)
 			: null;
 	const startInstallmentOptions =
 		showInstallments &&
-		formState.installmentCount &&
-		!Number.isNaN(installmentCount) &&
-		installmentCount > 0
+			formState.installmentCount &&
+			!Number.isNaN(installmentCount) &&
+			installmentCount > 0
 			? Array.from({ length: installmentCount }, (_, index) => index + 1)
 			: [];
 
@@ -172,27 +172,47 @@ export function ConditionSection({
 			) : null}
 
 			{showRecurrence ? (
-				<div className="space-y-1 w-full md:w-1/2">
-					<Label htmlFor="recurrenceCount">Repetirá por</Label>
-					<Select
-						value={formState.recurrenceCount}
-						onValueChange={(value) => onFieldChange("recurrenceCount", value)}
-					>
-						<SelectTrigger id="recurrenceCount" className="w-full">
-							<SelectValue placeholder="Selecione">
-								{formState.recurrenceCount
-									? `${formState.recurrenceCount} meses`
-									: null}
-							</SelectValue>
-						</SelectTrigger>
-						<SelectContent>
-							{[...Array(47)].map((_, index) => (
-								<SelectItem key={index + 2} value={String(index + 2)}>
-									{index + 2} meses
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+				<div className="flex w-full flex-col md:flex-row gap-4">
+					<div className="space-y-1 w-full md:w-1/2">
+						<Label htmlFor="recurrenceInterval">Frequência</Label>
+						<Select
+							value={formState.recurrenceInterval}
+							onValueChange={(value) => onFieldChange("recurrenceInterval", value)}
+						>
+							<SelectTrigger id="recurrenceInterval" className="w-full">
+								<SelectValue placeholder="Selecione" />
+							</SelectTrigger>
+							<SelectContent>
+								{RECURRENCE_INTERVALS.map((interval) => (
+									<SelectItem key={interval} value={interval}>
+										{interval}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="space-y-1 w-full md:w-1/2">
+						<Label htmlFor="recurrenceCount">Repetirá por</Label>
+						<Select
+							value={formState.recurrenceCount}
+							onValueChange={(value) => onFieldChange("recurrenceCount", value)}
+						>
+							<SelectTrigger id="recurrenceCount" className="w-full">
+								<SelectValue placeholder="Selecione">
+									{formState.recurrenceCount
+										? `${formState.recurrenceCount} vezes`
+										: null}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								{[...Array(47)].map((_, index) => (
+									<SelectItem key={index + 2} value={String(index + 2)}>
+										{index + 2} vezes
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 			) : null}
 		</div>

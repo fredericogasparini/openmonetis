@@ -453,6 +453,7 @@ export function TransactionsPage({
 			isSettled: pendingSplitEditData.isSettled,
 			dueDate: pendingSplitEditData.dueDate ?? undefined,
 			boletoPaymentDate: pendingSplitEditData.boletoPaymentDate ?? undefined,
+			recurrenceInterval: "Mensal" as const,
 			isSplit: false,
 		};
 

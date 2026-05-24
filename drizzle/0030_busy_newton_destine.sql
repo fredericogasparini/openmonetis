@@ -1,0 +1,1 @@
+ALTER TABLE "lancamentos" ADD COLUMN "intervalo_recorrencia" text DEFAULT 'Mensal';
