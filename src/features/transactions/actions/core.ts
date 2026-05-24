@@ -26,7 +26,7 @@ import { db } from "@/shared/lib/db";
 import { INVOICE_PAYMENT_STATUS } from "@/shared/lib/invoices";
 import { noteSchema, uuidSchema } from "@/shared/lib/schemas/common";
 import { advanceDateByInterval, addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
-import { addMonthsToPeriod, MONTH_NAMES } from "@/shared/utils/period";
+import { addMonthsToPeriod, dateToPeriod, MONTH_NAMES } from "@/shared/utils/period";
 
 // ============================================================================
 // Authorization Validation Functions
@@ -716,12 +716,13 @@ export const buildTransactionRecords = ({
 
 	if (data.condition === "Recorrente") {
 		const recurrenceTotal = data.recurrenceCount ?? 0;
+		const recurrenceInterval = data.recurrenceInterval ?? "Mensal";
 
 		for (let index = 0; index < recurrenceTotal; index += 1) {
-			const recurrencePeriod = addMonthsToPeriod(period, index);
-			const recurrencePurchaseDate = addMonthsToDate(purchaseDate, index);
+			const recurrencePurchaseDate = advanceDateByInterval(purchaseDate, index, recurrenceInterval);
+			const recurrencePeriod = dateToPeriod(recurrencePurchaseDate);
 			const recurrenceDueDate = dueDate
-				? addMonthsToDate(dueDate, index)
+				? advanceDateByInterval(dueDate, index, recurrenceInterval)
 				: null;
 			const splitGroupId = cycleSplitGroupId();
 
@@ -735,6 +736,7 @@ export const buildTransactionRecords = ({
 					period: recurrencePeriod,
 					isSettled: settled,
 					recurrenceCount: recurrenceTotal,
+					recurrenceInterval: recurrenceInterval,
 					dueDate: recurrenceDueDate,
 					splitGroupId,
 					boletoPaymentDate:

@@ -16,8 +16,8 @@ import {
 	sendPayerAutoEmails,
 } from "@/shared/lib/payers/notifications";
 import type { ActionResult } from "@/shared/lib/types/actions";
-import { addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
-import { addMonthsToPeriod, parsePeriod } from "@/shared/utils/period";
+import { advanceDateByInterval, addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
+import { addMonthsToPeriod, dateToPeriod, parsePeriod } from "@/shared/utils/period";
 import { cleanupAttachmentsAfterTransactionDelete } from "./attachments";
 import {
 	centsToDecimalString,
@@ -197,6 +197,7 @@ export async function updateTransactionBulkAction(
 				payerId: true,
 				cardId: true,
 				note: true,
+				recurrenceInterval: true,
 			},
 			where: and(
 				eq(transactions.id, data.id),
@@ -266,6 +267,32 @@ export async function updateTransactionBulkAction(
 		const basePeriod = hasPeriodUpdate ? data.period : undefined;
 		const targetCardId = data.cardId ?? existing.cardId ?? null;
 
+		const getRecurrenceOffset = (
+			baseDate: Date,
+			targetDate: Date,
+			interval: string,
+			basePeriod: string,
+			targetPeriod: string,
+		) => {
+			if (interval === "Diário") {
+				return Math.round((targetDate.getTime() - baseDate.getTime()) / 86400000);
+			}
+			if (interval === "Semanal") {
+				return Math.round((targetDate.getTime() - baseDate.getTime()) / (86400000 * 7));
+			}
+			if (interval === "Quinzenal") {
+				return Math.round((targetDate.getTime() - baseDate.getTime()) / (86400000 * 14));
+			}
+			const monthOffset = getPeriodOffset(basePeriod, targetPeriod);
+			switch (interval) {
+				case "Bimestral": return monthOffset / 2;
+				case "Trimestral": return monthOffset / 3;
+				case "Semestral": return monthOffset / 6;
+				case "Anual": return monthOffset / 12;
+				default: return monthOffset;
+			}
+		};
+
 		const buildDueDateForRecord = (recordPurchaseDate: Date | null) => {
 			if (!hasDueDateUpdate) {
 				return undefined;
@@ -296,7 +323,13 @@ export async function updateTransactionBulkAction(
 				return undefined;
 			}
 
-			if (existing.condition === "Recorrente" && existing.period) {
+			if (existing.condition === "Recorrente" && existing.period && referencePurchaseDate && record.purchaseDate) {
+				const interval = existing.recurrenceInterval ?? "Mensal";
+				const offset = getRecurrenceOffset(referencePurchaseDate, record.purchaseDate, interval, existing.period, record.period);
+				return advanceDateByInterval(basePurchaseDate, offset, interval);
+			}
+
+			if (existing.condition === "Parcelado" && existing.period) {
 				const offset = getPeriodOffset(existing.period, record.period);
 				return addMonthsToDate(basePurchaseDate, offset);
 			}
@@ -304,9 +337,16 @@ export async function updateTransactionBulkAction(
 			return basePurchaseDate;
 		};
 
-		const buildPeriodForRecord = (record: { period: string }) => {
+		const buildPeriodForRecord = (record: { period: string; purchaseDate: Date | null }) => {
 			if (!basePeriod) {
 				return undefined;
+			}
+
+			if (existing.condition === "Recorrente" && existing.period && referencePurchaseDate && record.purchaseDate) {
+				const newPurchaseDate = buildPurchaseDateForRecord(record);
+				if (newPurchaseDate) {
+					return dateToPeriod(newPurchaseDate);
+				}
 			}
 
 			if (existing.period) {
