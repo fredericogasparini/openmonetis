@@ -720,7 +720,12 @@ export const buildTransactionRecords = ({
 
 		for (let index = 0; index < recurrenceTotal; index += 1) {
 			const recurrencePurchaseDate = advanceDateByInterval(purchaseDate, index, recurrenceInterval);
-			const recurrencePeriod = dateToPeriod(recurrencePurchaseDate);
+			
+			const monthDiff =
+				(recurrencePurchaseDate.getFullYear() - purchaseDate.getFullYear()) * 12 +
+				(recurrencePurchaseDate.getMonth() - purchaseDate.getMonth());
+			const recurrencePeriod = addMonthsToPeriod(period, monthDiff);
+
 			const recurrenceDueDate = dueDate
 				? advanceDateByInterval(dueDate, index, recurrenceInterval)
 				: null;

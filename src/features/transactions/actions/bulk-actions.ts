@@ -271,8 +271,6 @@ export async function updateTransactionBulkAction(
 			baseDate: Date,
 			targetDate: Date,
 			interval: string,
-			basePeriod: string,
-			targetPeriod: string,
 		) => {
 			if (interval === "Diário") {
 				return Math.round((targetDate.getTime() - baseDate.getTime()) / 86400000);
@@ -283,13 +281,15 @@ export async function updateTransactionBulkAction(
 			if (interval === "Quinzenal") {
 				return Math.round((targetDate.getTime() - baseDate.getTime()) / (86400000 * 14));
 			}
-			const monthOffset = getPeriodOffset(basePeriod, targetPeriod);
+			const calendarMonthDiff =
+				(targetDate.getFullYear() - baseDate.getFullYear()) * 12 +
+				(targetDate.getMonth() - baseDate.getMonth());
 			switch (interval) {
-				case "Bimestral": return monthOffset / 2;
-				case "Trimestral": return monthOffset / 3;
-				case "Semestral": return monthOffset / 6;
-				case "Anual": return monthOffset / 12;
-				default: return monthOffset;
+				case "Bimestral": return Math.round(calendarMonthDiff / 2);
+				case "Trimestral": return Math.round(calendarMonthDiff / 3);
+				case "Semestral": return Math.round(calendarMonthDiff / 6);
+				case "Anual": return Math.round(calendarMonthDiff / 12);
+				default: return calendarMonthDiff;
 			}
 		};
 
@@ -325,7 +325,7 @@ export async function updateTransactionBulkAction(
 
 			if (existing.condition === "Recorrente" && existing.period && referencePurchaseDate && record.purchaseDate) {
 				const interval = existing.recurrenceInterval ?? "Mensal";
-				const offset = getRecurrenceOffset(referencePurchaseDate, record.purchaseDate, interval, existing.period, record.period);
+				const offset = getRecurrenceOffset(referencePurchaseDate, record.purchaseDate, interval);
 				return advanceDateByInterval(basePurchaseDate, offset, interval);
 			}
 
@@ -340,13 +340,6 @@ export async function updateTransactionBulkAction(
 		const buildPeriodForRecord = (record: { period: string; purchaseDate: Date | null }) => {
 			if (!basePeriod) {
 				return undefined;
-			}
-
-			if (existing.condition === "Recorrente" && existing.period && referencePurchaseDate && record.purchaseDate) {
-				const newPurchaseDate = buildPurchaseDateForRecord(record);
-				if (newPurchaseDate) {
-					return dateToPeriod(newPurchaseDate);
-				}
 			}
 
 			if (existing.period) {
