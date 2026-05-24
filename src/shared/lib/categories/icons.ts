@@ -24,6 +24,7 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "Reembolso", value: "RiRefundLine" },
 	{ label: "Recompensa", value: "RiRefund2Line" },
 	{ label: "Leilão", value: "RiAuctionLine" },
+	{ label: "Desconto", value: "RiDiscountPercentLine" },
 
 	// Compras
 	{ label: "Carrinho", value: "RiShoppingCartLine" },
@@ -88,6 +89,7 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "Música", value: "RiMusic2Line" },
 	{ label: "Microfone", value: "RiMicLine" },
 	{ label: "Fone", value: "RiHeadphoneLine" },
+	{ label: "Streaming", value: "RiTvLine" },
 	{ label: "Câmera", value: "RiCameraLine" },
 	{ label: "Praia", value: "RiUmbrellaLine" },
 	{ label: "Futebol", value: "RiFootballLine" },
@@ -97,7 +99,7 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "WiFi", value: "RiWifiLine" },
 	{ label: "Celular", value: "RiSmartphoneLine" },
 	{ label: "Computador", value: "RiComputerLine" },
-	{ label: "Monitor", value: "RiMonitorLine" },
+	{ label: "Monitor", value: "RiTv2Line" },
 	{ label: "Teclado", value: "RiKeyboardLine" },
 	{ label: "Mouse", value: "RiMouseLine" },
 	{ label: "Fone Bluetooth", value: "RiBluetoothLine" },
@@ -106,7 +108,6 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "Usuário", value: "RiUserLine" },
 	{ label: "Grupo", value: "RiGroupLine" },
 	{ label: "Família", value: "RiParentLine" },
-	{ label: "Bebê", value: "RiBabyCarriageLine" },
 
 	// Animais
 	{ label: "Pet", value: "RiBearSmileLine" },
@@ -126,7 +127,7 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "Troféu", value: "RiMedalLine" },
 
 	// Outros
-	{ label: "Mais", value: "RiMore2Line" },
+	{ label: "Mais", value: "RiMoreLine" },
 	{ label: "Estrela", value: "RiStarLine" },
 	{ label: "Foguete", value: "RiRocketLine" },
 	{ label: "Ampulheta", value: "RiHourglassLine" },
@@ -148,12 +149,12 @@ const CATEGORY_ICON_OPTIONS: CategoryIconOption[] = [
 	{ label: "Cadeado", value: "RiLockLine" },
 	{ label: "Chave", value: "RiKeyLine" },
 	{ label: "Configurações", value: "RiSettings3Line" },
-	{ label: "Link", value: "RiLinkLine" },
+	{ label: "Link", value: "RiLink" },
 	{ label: "Anexo", value: "RiAttachment2" },
 	{ label: "Download", value: "RiDownloadLine" },
 	{ label: "Upload", value: "RiUploadLine" },
-	{ label: "Nuvem Download", value: "RiCloudDownloadLine" },
-	{ label: "Nuvem Upload", value: "RiCloudUploadLine" },
+	{ label: "Nuvem Download", value: "RiDownloadCloudLine" },
+	{ label: "Nuvem Upload", value: "RiUploadCloudLine" },
 ];
 
 type CategoryIconGroup = {
@@ -177,6 +178,7 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "Reembolso", value: "RiRefundLine" },
 			{ label: "Recompensa", value: "RiRefund2Line" },
 			{ label: "Leilão", value: "RiAuctionLine" },
+			{ label: "Desconto", value: "RiDiscountPercentLine" },
 		],
 	},
 	{
@@ -265,6 +267,7 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "Música", value: "RiMusic2Line" },
 			{ label: "Microfone", value: "RiMicLine" },
 			{ label: "Fone", value: "RiHeadphoneLine" },
+			{ label: "Streaming", value: "RiTvLine" },
 			{ label: "Câmera", value: "RiCameraLine" },
 			{ label: "Praia", value: "RiUmbrellaLine" },
 			{ label: "Futebol", value: "RiFootballLine" },
@@ -277,7 +280,7 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "WiFi", value: "RiWifiLine" },
 			{ label: "Celular", value: "RiSmartphoneLine" },
 			{ label: "Computador", value: "RiComputerLine" },
-			{ label: "Monitor", value: "RiMonitorLine" },
+			{ label: "Monitor", value: "RiTv2Line" },
 			{ label: "Teclado", value: "RiKeyboardLine" },
 			{ label: "Mouse", value: "RiMouseLine" },
 			{ label: "Fone Bluetooth", value: "RiBluetoothLine" },
@@ -289,7 +292,6 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "Usuário", value: "RiUserLine" },
 			{ label: "Grupo", value: "RiGroupLine" },
 			{ label: "Família", value: "RiParentLine" },
-			{ label: "Bebê", value: "RiBabyCarriageLine" },
 		],
 	},
 	{
@@ -304,7 +306,7 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "Serviço", value: "RiServiceLine" },
 			{ label: "Alerta", value: "RiAlertLine" },
 			{ label: "Troféu", value: "RiMedalLine" },
-			{ label: "Mais", value: "RiMore2Line" },
+			{ label: "Mais", value: "RiMoreLine" },
 			{ label: "Estrela", value: "RiStarLine" },
 			{ label: "Foguete", value: "RiRocketLine" },
 			{ label: "Ampulheta", value: "RiHourglassLine" },
@@ -326,12 +328,12 @@ export const CATEGORY_ICON_GROUPS: CategoryIconGroup[] = [
 			{ label: "Cadeado", value: "RiLockLine" },
 			{ label: "Chave", value: "RiKeyLine" },
 			{ label: "Configurações", value: "RiSettings3Line" },
-			{ label: "Link", value: "RiLinkLine" },
+			{ label: "Link", value: "RiLink" },
 			{ label: "Anexo", value: "RiAttachment2" },
 			{ label: "Download", value: "RiDownloadLine" },
 			{ label: "Upload", value: "RiUploadLine" },
-			{ label: "Nuvem Download", value: "RiCloudDownloadLine" },
-			{ label: "Nuvem Upload", value: "RiCloudUploadLine" },
+			{ label: "Nuvem Download", value: "RiDownloadCloudLine" },
+			{ label: "Nuvem Upload", value: "RiUploadCloudLine" },
 		],
 	},
 ];
