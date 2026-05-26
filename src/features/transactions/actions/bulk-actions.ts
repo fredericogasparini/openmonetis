@@ -337,7 +337,7 @@ export async function updateTransactionBulkAction(
 			return basePurchaseDate;
 		};
 
-		const buildPeriodForRecord = (record: { period: string; purchaseDate: Date | null }) => {
+		const buildPeriodForRecord = (record: { period: string }) => {
 			if (!basePeriod) {
 				return undefined;
 			}
