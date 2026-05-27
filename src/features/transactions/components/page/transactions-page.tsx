@@ -66,8 +66,6 @@ interface TransactionsPageProps {
 	defaultAccountId?: string | null;
 	estabelecimentos: string[];
 	allowCreate?: boolean;
-	noteAsColumn?: boolean;
-	columnOrder?: string[] | null;
 	defaultCardId?: string | null;
 	defaultPaymentMethod?: string | null;
 	lockCardSelection?: boolean;
@@ -100,8 +98,6 @@ export function TransactionsPage({
 	defaultAccountId,
 	estabelecimentos,
 	allowCreate = true,
-	noteAsColumn = false,
-	columnOrder = null,
 	defaultCardId,
 	defaultPaymentMethod,
 	lockCardSelection,
@@ -611,8 +607,6 @@ export function TransactionsPage({
 			<TransactionsTable
 				data={transactionList}
 				currentUserId={currentUserId}
-				noteAsColumn={noteAsColumn}
-				columnOrder={columnOrder}
 				payerFilterOptions={payerFilterOptions}
 				categoryFilterOptions={categoryFilterOptions}
 				accountCardFilterOptions={accountCardFilterOptions}

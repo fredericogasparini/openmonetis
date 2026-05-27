@@ -147,12 +147,6 @@ export const userPreferences = pgTable("preferencias_usuario", {
 		.notNull()
 		.unique()
 		.references(() => user.id, { onDelete: "cascade" }),
-	statementNoteAsColumn: boolean("extrato_note_as_column")
-		.notNull()
-		.default(false),
-	transactionsColumnOrder: jsonb("lancamentos_column_order").$type<
-		string[] | null
-	>(),
 	attachmentMaxSizeMb: integer("attachment_max_size_mb").notNull().default(50),
 	dashboardWidgets: jsonb("dashboard_widgets").$type<{
 		order: string[];

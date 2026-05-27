@@ -110,8 +110,6 @@ export default async function Page({ searchParams }: PageProps) {
 						period: selectedPeriod,
 						filters: searchFilters,
 					}}
-					noteAsColumn={userPreferences?.statementNoteAsColumn ?? false}
-					columnOrder={userPreferences?.transactionsColumnOrder ?? null}
 					attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 				/>
 			</LogoPrefetchProvider>

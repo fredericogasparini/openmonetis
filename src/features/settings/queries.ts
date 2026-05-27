@@ -3,8 +3,6 @@ import { apiTokens } from "@/db/schema";
 import { db, schema } from "@/shared/lib/db";
 
 interface UserPreferences {
-	statementNoteAsColumn: boolean;
-	transactionsColumnOrder: string[] | null;
 	attachmentMaxSizeMb: number;
 }
 
@@ -31,8 +29,6 @@ export async function fetchUserPreferences(
 ): Promise<UserPreferences | null> {
 	const result = await db
 		.select({
-			statementNoteAsColumn: schema.userPreferences.statementNoteAsColumn,
-			transactionsColumnOrder: schema.userPreferences.transactionsColumnOrder,
 			attachmentMaxSizeMb: schema.userPreferences.attachmentMaxSizeMb,
 		})
 		.from(schema.userPreferences)

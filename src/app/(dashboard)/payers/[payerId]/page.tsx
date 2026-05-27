@@ -405,8 +405,6 @@ export default async function Page({ params, searchParams }: PageProps) {
 								selectedPeriod={selectedPeriod}
 								estabelecimentos={estabelecimentos}
 								allowCreate={canEdit}
-								noteAsColumn={userPreferences?.statementNoteAsColumn ?? false}
-								columnOrder={userPreferences?.transactionsColumnOrder ?? null}
 								attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 								importPayerOptions={loggedUserOptionSets?.payerOptions}
 								importSplitPayerOptions={

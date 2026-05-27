@@ -99,8 +99,6 @@ export default async function Page({ params, searchParams }: PageProps) {
 				selectedPeriod={detail.period}
 				estabelecimentos={estabelecimentos}
 				allowCreate={true}
-				noteAsColumn={userPreferences?.statementNoteAsColumn ?? false}
-				columnOrder={userPreferences?.transactionsColumnOrder ?? null}
 				attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 			/>
 		</main>

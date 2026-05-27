@@ -211,8 +211,6 @@ export default async function Page({ params, searchParams }: PageProps) {
 					defaultPaymentMethod={resolveDefaultPaymentMethod(
 						account.accountType,
 					)}
-					noteAsColumn={userPreferences?.statementNoteAsColumn ?? false}
-					columnOrder={userPreferences?.transactionsColumnOrder ?? null}
 					attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 				/>
 			</section>
