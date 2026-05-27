@@ -77,7 +77,6 @@ function TruncatedDescription({ name }: { name: string }) {
 
 type BuildColumnsArgs = {
 	currentUserId: string;
-	noteAsColumn: boolean;
 	onEdit?: (item: TransactionItem) => void;
 	onCopy?: (item: TransactionItem) => void;
 	onImport?: (item: TransactionItem) => void;
@@ -89,7 +88,6 @@ type BuildColumnsArgs = {
 	onViewAnticipationHistory?: (item: TransactionItem) => void;
 	isSettlementLoading: (id: string) => boolean;
 	showActions: boolean;
-	columnOrder?: string[] | null;
 };
 
 function getPaymentMethodTableLabel(method: string) {
@@ -240,9 +238,7 @@ export function getTransactionColumns({
 								) : null}
 
 								{installmentBadge ? (
-									<span
-										className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground"
-									>
+									<span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground">
 										{installmentBadge}
 									</span>
 								) : null}

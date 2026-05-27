@@ -75,12 +75,6 @@ export default async function Page() {
 							</div>
 							<Separator />
 							<PreferencesForm
-								statementNoteAsColumn={
-									userPreferences?.statementNoteAsColumn ?? false
-								}
-								transactionsColumnOrder={
-									userPreferences?.transactionsColumnOrder ?? null
-								}
 								attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 							/>
 						</div>

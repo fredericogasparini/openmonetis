@@ -51,8 +51,6 @@ import { TransactionsPagination } from "./transactions-pagination";
 type TransactionsTableProps = {
 	data: TransactionItem[];
 	currentUserId: string;
-	noteAsColumn?: boolean;
-	columnOrder?: string[] | null;
 	payerFilterOptions?: TransactionFilterOption[];
 	categoryFilterOptions?: TransactionFilterOption[];
 	accountCardFilterOptions?: AccountCardFilterOption[];
@@ -86,8 +84,6 @@ function formatGroupDate(dateStr: string) {
 export function TransactionsTable({
 	data,
 	currentUserId,
-	noteAsColumn = false,
-	columnOrder: columnOrderPreference = null,
 	payerFilterOptions = [],
 	categoryFilterOptions = [],
 	accountCardFilterOptions = [],
@@ -131,7 +127,6 @@ export function TransactionsTable({
 		() =>
 			getTransactionColumns({
 				currentUserId,
-				noteAsColumn,
 				onEdit,
 				onCopy,
 				onImport,
@@ -143,12 +138,9 @@ export function TransactionsTable({
 				onViewAnticipationHistory,
 				isSettlementLoading: isSettlementLoading ?? (() => false),
 				showActions,
-				columnOrder: columnOrderPreference,
 			}),
 		[
 			currentUserId,
-			noteAsColumn,
-			columnOrderPreference,
 			onEdit,
 			onCopy,
 			onImport,
@@ -388,7 +380,7 @@ export function TransactionsTable({
 												<TableRow className="border-b hover:bg-transparent">
 													<TableCell
 														colSpan={visibleColumnsCount}
-														className="py-3 px-10 text-xs text-muted-foreground"
+														className="h-[40px] px-10 text-sm text-muted-foreground"
 													>
 														{group.label}
 													</TableCell>

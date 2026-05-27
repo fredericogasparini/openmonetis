@@ -65,8 +65,6 @@ const resetAccountSchema = z.object({
 });
 
 const updatePreferencesSchema = z.object({
-	statementNoteAsColumn: z.boolean(),
-	transactionsColumnOrder: z.array(z.string()).nullable(),
 	attachmentMaxSizeMb: z.number().int().min(1).max(100),
 });
 
@@ -579,8 +577,6 @@ export async function updatePreferencesAction(
 			await db
 				.update(schema.userPreferences)
 				.set({
-					statementNoteAsColumn: validated.statementNoteAsColumn,
-					transactionsColumnOrder: validated.transactionsColumnOrder,
 					attachmentMaxSizeMb: validated.attachmentMaxSizeMb,
 					updatedAt: new Date(),
 				})
@@ -589,8 +585,6 @@ export async function updatePreferencesAction(
 			// Create new preferences
 			await db.insert(schema.userPreferences).values({
 				userId: session.user.id,
-				statementNoteAsColumn: validated.statementNoteAsColumn,
-				transactionsColumnOrder: validated.transactionsColumnOrder,
 				attachmentMaxSizeMb: validated.attachmentMaxSizeMb,
 			});
 		}
