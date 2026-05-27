@@ -18,17 +18,13 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { DEFAULT_TRANSACTIONS_COLUMN_ORDER } from "@/features/transactions/lib/column-order";
+import { useRef, useState } from "react";
 import {
 	CREDIT_CARD_PAYMENT_METHOD,
 	SETTLEABLE_PAYMENT_METHODS,
 } from "@/features/transactions/lib/constants";
-import {
-	CategoryIconBadge,
-	EstablishmentLogo,
-} from "@/shared/components/entity-avatar";
+import { CategoryIconBadge } from "@/shared/components/entity-avatar";
 import MoneyValues from "@/shared/components/money-values";
-import { TransactionTypeBadge } from "@/shared/components/transaction-type-badge";
 import {
 	Avatar,
 	AvatarFallback,
@@ -58,6 +54,28 @@ import { getConditionIcon, getPaymentMethodIcon } from "@/shared/utils/icons";
 import { cn } from "@/shared/utils/ui";
 import type { TransactionItem } from "../types";
 
+function TruncatedDescription({ name }: { name: string }) {
+	const textRef = useRef<HTMLSpanElement>(null);
+	const [isTruncated] = useState(false);
+	const content = (
+		<span ref={textRef} className="font-medium truncate block">
+			{name}
+		</span>
+	);
+
+	if (isTruncated) {
+		return (
+			<Tooltip>
+				<TooltipTrigger asChild>{content}</TooltipTrigger>
+				<TooltipContent side="top" className="max-w-xs">
+					{name}
+				</TooltipContent>
+			</Tooltip>
+		);
+	}
+	return content;
+}
+
 type BuildColumnsArgs = {
 	currentUserId: string;
 	noteAsColumn: boolean;
@@ -80,49 +98,8 @@ function getPaymentMethodTableLabel(method: string) {
 	return method;
 }
 
-const FIXED_START_IDS = ["select", "purchaseDate"];
-const FIXED_END_IDS = ["actions"];
-
-function getColumnId(col: ColumnDef<TransactionItem>): string {
-	const c = col as { id?: string; accessorKey?: string };
-	return c.id ?? c.accessorKey ?? "";
-}
-
-function reorderColumnsByPreference<T>(
-	columns: ColumnDef<T>[],
-	orderPreference: string[] | null | undefined,
-): ColumnDef<T>[] {
-	if (!orderPreference || orderPreference.length === 0) return columns;
-
-	const order = orderPreference;
-	const fixedStart: ColumnDef<T>[] = [];
-	const reorderable: ColumnDef<T>[] = [];
-	const fixedEnd: ColumnDef<T>[] = [];
-
-	for (const col of columns) {
-		const id = getColumnId(col as ColumnDef<TransactionItem>);
-		if (FIXED_START_IDS.includes(id)) fixedStart.push(col);
-		else if (FIXED_END_IDS.includes(id)) fixedEnd.push(col);
-		else reorderable.push(col);
-	}
-
-	const sorted = [...reorderable].sort((a, b) => {
-		const idA = getColumnId(a as ColumnDef<TransactionItem>);
-		const idB = getColumnId(b as ColumnDef<TransactionItem>);
-		const indexA = order.indexOf(idA);
-		const indexB = order.indexOf(idB);
-		if (indexA === -1 && indexB === -1) return 0;
-		if (indexA === -1) return 1;
-		if (indexB === -1) return -1;
-		return indexA - indexB;
-	});
-
-	return [...fixedStart, ...sorted, ...fixedEnd];
-}
-
-function buildColumns({
+export function getTransactionColumns({
 	currentUserId,
-	noteAsColumn,
 	onEdit,
 	onCopy,
 	onImport,
@@ -176,12 +153,13 @@ function buildColumns({
 			cell: () => null,
 		},
 		{
+			id: "description",
 			accessorKey: "name",
-			header: "Estabelecimento",
+			header: "Descrição",
+			size: 300,
 			cell: ({ row }) => {
 				const {
 					name,
-					purchaseDate,
 					installmentCount,
 					currentInstallment,
 					paymentMethod,
@@ -190,11 +168,13 @@ function buildColumns({
 					isDivided,
 					isAnticipated,
 					hasAttachments,
+					categoriaName,
+					categoriaIcon,
 				} = row.original;
 
 				const installmentBadge =
 					currentInstallment && installmentCount
-						? `${currentInstallment} de ${installmentCount}`
+						? `${currentInstallment}/${installmentCount}`
 						: null;
 
 				const isBoleto = paymentMethod === "Boleto" && dueDate;
@@ -207,33 +187,29 @@ function buildColumns({
 					installmentCount > 1;
 
 				return (
-					<span className="flex items-center gap-2">
-						<EstablishmentLogo name={name} size={32} />
-						<span className="flex flex-col py-0.5">
-							<span className="text-xs text-muted-foreground flex items-center gap-2">
-								{formatDate(purchaseDate)}
-								{dueDateLabel ? (
-									<span className="text-primary">{dueDateLabel}</span>
-								) : null}
-							</span>
-							<span className="flex items-center gap-1">
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<span className="line-clamp-2 max-w-[180px] font-semibold truncate">
-											{name}
-										</span>
-									</TooltipTrigger>
-									<TooltipContent side="top" className="max-w-xs">
-										{name}
-									</TooltipContent>
-								</Tooltip>
+					<div className="flex items-center gap-3 min-w-0">
+						<Tooltip>
+							<TooltipTrigger className="cursor-default rounded-full shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+								<CategoryIconBadge
+									icon={categoriaIcon}
+									name={categoriaName ?? "Sem categoria"}
+									size="sm"
+								/>
+							</TooltipTrigger>
+							<TooltipContent side="top">
+								<p>{categoriaName ?? "Sem categoria"}</p>
+							</TooltipContent>
+						</Tooltip>
+						<div className="flex flex-col py-0.5 min-w-0">
+							<div className="flex items-center gap-1.5 min-w-0">
+								<TruncatedDescription name={name} />
 
 								{isDivided && (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-1">
+											<span className="inline-flex rounded-full p-0.5 shrink-0">
 												<RiGroupLine
-													size={14}
+													size={16}
 													className="text-muted-foreground"
 													aria-hidden
 												/>
@@ -249,7 +225,7 @@ function buildColumns({
 								{isLastInstallment ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex">
+											<span className="inline-flex p-0.5 shrink-0">
 												<Image
 													src="/icons/party.svg"
 													alt="Última parcela"
@@ -265,7 +241,10 @@ function buildColumns({
 								) : null}
 
 								{installmentBadge ? (
-									<Badge variant="outline" className="px-2 text-xs">
+									<Badge
+										variant="secondary"
+										className="px-1.5 py-0 text-[10px] h-4 leading-4 shrink-0"
+									>
 										{installmentBadge}
 									</Badge>
 								) : null}
@@ -273,9 +252,9 @@ function buildColumns({
 								{isAnticipated && (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-1">
+											<span className="inline-flex rounded-full p-0.5 shrink-0">
 												<RiTimeLine
-													size={14}
+													size={16}
 													className="text-muted-foreground"
 													aria-hidden
 												/>
@@ -288,10 +267,10 @@ function buildColumns({
 									</Tooltip>
 								)}
 
-								{!noteAsColumn && hasNote ? (
+								{hasNote ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-1 hover:bg-accent transition-colors duration-300">
+											<span className="inline-flex rounded-full p-0.5 hover:bg-accent transition-colors duration-300 shrink-0">
 												<RiChat1Line
 													className="h-4 w-4 text-muted-foreground"
 													aria-hidden
@@ -312,7 +291,7 @@ function buildColumns({
 								{hasAttachments ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-1">
+											<span className="inline-flex rounded-full p-0.5 shrink-0">
 												<RiAttachment2
 													className="h-4 w-4 text-muted-foreground"
 													aria-hidden
@@ -323,127 +302,46 @@ function buildColumns({
 										<TooltipContent side="top">Possui anexos</TooltipContent>
 									</Tooltip>
 								) : null}
-							</span>
-						</span>
-					</span>
+							</div>
+							{dueDateLabel && (
+								<span className="text-[10px] text-destructive font-medium shrink-0">
+									{dueDateLabel}
+								</span>
+							)}
+						</div>
+					</div>
 				);
 			},
 		},
 		{
-			accessorKey: "transactionType",
-			header: "Transação",
-			cell: ({ row }) => {
-				const type =
-					row.original.categoriaName === "Saldo inicial"
-						? "Saldo inicial"
-						: row.original.transactionType;
-				return (
-					<TransactionTypeBadge
-						kind={
-							type as "Despesa" | "Receita" | "Transferência" | "Saldo inicial"
-						}
-					/>
-				);
-			},
-		},
-		{
-			accessorKey: "amount",
-			header: "Valor",
-			cell: ({ row }) => {
-				const isReceita = row.original.transactionType === "Receita";
-				const isTransfer = row.original.transactionType === "Transferência";
-				const isIncomingTransfer =
-					isTransfer && Number(row.original.amount) > 0;
-				return (
-					<MoneyValues
-						amount={row.original.amount}
-						showPositiveSign={isReceita || isIncomingTransfer}
-						className={cn(
-							"whitespace-nowrap",
-							isReceita ? "text-success" : "text-foreground",
-							isTransfer && "text-info",
-						)}
-					/>
-				);
-			},
-		},
-		{
-			accessorKey: "condition",
-			header: "Condição",
-			cell: ({ row }) => {
-				const condition = row.original.condition;
-				const icon = getConditionIcon(condition);
-				return (
-					<span className="flex items-center gap-2">
-						{icon}
-						<span>{condition}</span>
-					</span>
-				);
-			},
-		},
-		{
-			accessorKey: "paymentMethod",
-			header: "Forma de Pagamento",
-			cell: ({ row }) => {
-				const method = row.original.paymentMethod;
-				const icon = getPaymentMethodIcon(method);
-				return (
-					<span className="flex items-center gap-2">
-						{icon}
-						<span>{getPaymentMethodTableLabel(method)}</span>
-					</span>
-				);
-			},
-		},
-		{
-			accessorKey: "categoriaName",
-			header: "Categoria",
-			cell: ({ row }) => {
-				const { categoriaName, categoriaIcon } = row.original;
-				if (!categoriaName) {
-					return <span className="text-muted-foreground">—</span>;
-				}
-				return (
-					<span className="flex items-center gap-2">
-						<CategoryIconBadge
-							icon={categoriaIcon}
-							name={categoriaName}
-							size="sm"
-						/>
-						<span>{categoriaName}</span>
-					</span>
-				);
-			},
-		},
-		{
+			id: "person",
 			accessorKey: "pagadorName",
 			header: "Pessoa",
+			size: 150,
 			cell: ({ row }) => {
 				const { payerId, pagadorName, pagadorAvatar } = row.original;
 				const label = pagadorName?.trim() || "Sem pessoa";
 				const displayName = label.split(/\s+/)[0] ?? label;
 				const avatarSrc = getAvatarSrc(pagadorAvatar);
-				const initial = displayName.charAt(0).toUpperCase() || "?";
+				const initial = displayName.charAt(0).toLowerCase() || "?";
 				const content = (
-					<>
+					<div className="flex items-center gap-2">
 						<Avatar className="size-8">
 							<AvatarImage src={avatarSrc} alt={`Avatar de ${label}`} />
-							<AvatarFallback className="text-xs font-medium uppercase">
+							<AvatarFallback className="text-[10px] font-medium uppercase">
 								{initial}
 							</AvatarFallback>
 						</Avatar>
-						<span className="truncate">{displayName}</span>
-					</>
+						<span className="truncate text-sm">{displayName}</span>
+					</div>
 				);
 				if (!payerId) {
-					return (
-						<span className="inline-flex items-center gap-2">{content}</span>
-					);
+					return content;
 				}
 				return (
 					<Link
 						href={`/payers/${payerId}`}
-						className="inline-flex items-center gap-2 hover:underline"
+						className="inline-block hover:underline"
 						title={label}
 					>
 						{content}
@@ -452,7 +350,7 @@ function buildColumns({
 			},
 		},
 		{
-			id: "contaCartao",
+			id: "accountCard",
 			header: "Conta/Cartão",
 			cell: ({ row }) => {
 				const {
@@ -463,9 +361,11 @@ function buildColumns({
 					cardId,
 					accountId,
 					userId,
+					condition,
 				} = row.original;
+
 				const isCartao = Boolean(cartaoName);
-				const label = cartaoName ?? contaName;
+				const label = cartaoName ?? contaName ?? "Desconhecido";
 				const logoSrc = resolveLogoSrc(cartaoLogo ?? contaLogo);
 				const href = cardId
 					? `/cards/${cardId}/invoice`
@@ -473,34 +373,49 @@ function buildColumns({
 						? `/accounts/${accountId}/statement`
 						: null;
 				const isOwnData = userId === currentUserId;
+				const condIcon = getConditionIcon(condition);
 
 				const content = (
-					<span className="inline-flex items-center gap-2">
-						{logoSrc && (
-							<Avatar className="size-8">
-								<AvatarImage src={logoSrc} alt={`Logo de ${label}`} />
-								<AvatarFallback className="text-xs font-medium uppercase">
-									{label}
-								</AvatarFallback>
-							</Avatar>
-						)}
-						<span
+					<div className="flex items-center gap-2">
+						<div
 							className={cn(
-								"truncate underline-offset-2",
-								isOwnData && href && "group-hover:underline",
+								"flex items-center text-muted-foreground w-4",
+								condition === "À vista" && "invisible",
 							)}
+							title={condition !== "À vista" ? condition : undefined}
 						>
-							{label}
-						</span>
-					</span>
+							{condition !== "À vista" && condIcon}
+						</div>
+
+						<div className="flex items-center gap-1.5">
+							{logoSrc && (
+								<Avatar className="size-8 rounded-full">
+									<AvatarImage src={logoSrc} alt={`Logo de ${label}`} />
+									<AvatarFallback className="text-[9px] font-medium uppercase rounded-full">
+										{label.substring(0, 2)}
+									</AvatarFallback>
+								</Avatar>
+							)}
+							<span
+								className={cn(
+									"truncate text-sm underline-offset-2",
+									isOwnData && href && "group-hover:underline",
+								)}
+							>
+								{label}
+							</span>
+						</div>
+					</div>
 				);
 
 				if (!isOwnData || !href) {
 					return (
 						<Tooltip>
-							<TooltipTrigger asChild>{content}</TooltipTrigger>
+							<TooltipTrigger asChild>
+								<div>{content}</div>
+							</TooltipTrigger>
 							<TooltipContent side="top">
-								{isCartao ? "Cartão" : "Conta"}: {label}
+								{condition} • {isCartao ? "Cartão" : "Conta"}: {label}
 							</TooltipContent>
 						</Tooltip>
 					);
@@ -509,48 +424,73 @@ function buildColumns({
 				return (
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Link href={href} className="group">
+							<Link href={href} className="group inline-block">
 								{content}
 							</Link>
 						</TooltipTrigger>
 						<TooltipContent side="top">
-							{isCartao ? "Cartão" : "Conta"}: {label}
+							{condition} • {isCartao ? "Cartão" : "Conta"}: {label}
 						</TooltipContent>
 					</Tooltip>
 				);
 			},
 		},
-	];
-
-	if (noteAsColumn) {
-		const accountCardIndex = columns.findIndex((c) => c.id === "contaCartao");
-		const noteColumn: ColumnDef<TransactionItem> = {
-			accessorKey: "note",
-			header: "Anotação",
+		{
+			id: "paymentMethod",
+			accessorKey: "paymentMethod",
+			header: "Pagamento",
+			size: 140,
 			cell: ({ row }) => {
-				const note = row.original.note;
-				if (!note?.trim())
-					return <span className="text-muted-foreground">—</span>;
+				const method = row.original.paymentMethod;
+				const icon = getPaymentMethodIcon(method);
 				return (
-					<span
-						className="max-w-[200px] truncate whitespace-pre-line text-sm"
-						title={note}
+					<div
+						className="flex items-center gap-1.5 text-sm min-w-0"
+						title={method}
 					>
-						{note}
-					</span>
+						<span className="shrink-0">{icon}</span>
+						<span className="truncate block">
+							{getPaymentMethodTableLabel(method)}
+						</span>
+					</div>
 				);
 			},
-		};
-		columns.splice(accountCardIndex, 0, noteColumn);
-	}
+		},
+		{
+			id: "amount",
+			accessorKey: "amount",
+			header: "Valor",
+			size: 120,
+			cell: ({ row }) => {
+				const isReceita = row.original.transactionType === "Receita";
+				const isTransfer = row.original.transactionType === "Transferência";
+				const isIncomingTransfer =
+					isTransfer && Number(row.original.amount) > 0;
+				return (
+					<div className="text-right flex justify-end">
+						<MoneyValues
+							amount={row.original.amount}
+							showPositiveSign={isReceita || isIncomingTransfer}
+							className={cn(
+								"whitespace-nowrap font-medium",
+								isReceita ? "text-success" : "text-foreground",
+								isTransfer && "text-info",
+							)}
+						/>
+					</div>
+				);
+			},
+		},
+	];
 
 	if (showActions) {
 		columns.push({
 			id: "actions",
 			header: "Ações",
+			size: 100,
 			enableSorting: false,
 			cell: ({ row }) => (
-				<div className="flex items-center gap-2">
+				<div className="flex items-center justify-end gap-1">
 					{(() => {
 						const paymentMethod = row.original.paymentMethod;
 						const isCreditCard = paymentMethod === CREDIT_CARD_PAYMENT_METHOD;
@@ -571,7 +511,7 @@ function buildColumns({
 												size="icon-sm"
 												disabled
 												className={cn(
-													"transition-colors",
+													"transition-colors size-8",
 													invoicePaid
 														? "bg-success/10 text-success"
 														: "text-muted-foreground/30",
@@ -612,7 +552,7 @@ function buildColumns({
 										onClick={() => handleToggleSettlement(row.original)}
 										disabled={loading || readOnly}
 										className={cn(
-											"transition-colors",
+											"transition-colors size-8",
 											settled
 												? "bg-success/10 text-success hover:bg-success/20 hover:text-success"
 												: "text-muted-foreground hover:text-foreground",
@@ -639,7 +579,7 @@ function buildColumns({
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon-sm">
+							<Button variant="ghost" size="icon-sm" className="size-8">
 								<RiMoreFill className="size-4" />
 								<span className="sr-only">Abrir ações do lançamento</span>
 							</Button>
@@ -746,14 +686,4 @@ function buildColumns({
 	}
 
 	return columns;
-}
-
-export function getTransactionColumns(
-	args: BuildColumnsArgs,
-): ColumnDef<TransactionItem>[] {
-	const built = buildColumns(args);
-	const order = args.columnOrder?.length
-		? args.columnOrder
-		: DEFAULT_TRANSACTIONS_COLUMN_ORDER;
-	return reorderColumnsByPreference(built, order);
 }

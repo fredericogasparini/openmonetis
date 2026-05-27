@@ -15,7 +15,7 @@ import {
 	type VisibilityState,
 } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type ReactNode, useMemo, useState } from "react";
+import React, { type ReactNode, useMemo, useState } from "react";
 import type {
 	TransactionsExportContext,
 	TransactionsPaginationState,
@@ -27,8 +27,6 @@ import {
 	Table,
 	TableBody,
 	TableCell,
-	TableHead,
-	TableHeader,
 	TableRow,
 } from "@/shared/components/ui/table";
 import {
@@ -37,6 +35,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { formatDate } from "@/shared/utils/date";
 import { cn } from "@/shared/utils/ui";
 import { TransactionsExport } from "../transactions-export";
 import type {
@@ -77,6 +76,12 @@ type TransactionsTableProps = {
 	showActions?: boolean;
 	showFilters?: boolean;
 };
+
+function formatGroupDate(dateStr: string) {
+	if (!dateStr) return "Desconhecido";
+	const formatted = formatDate(dateStr);
+	return formatted.charAt(0).toLowerCase() + formatted.slice(1);
+}
 
 export function TransactionsTable({
 	data,
@@ -202,6 +207,30 @@ export function TransactionsTable({
 
 	const hasOtherUserData = data.some((item) => item.userId !== currentUserId);
 
+	const groupedRows = useMemo(() => {
+		const groups: {
+			date: string;
+			label: string;
+			rows: typeof rowModel.rows;
+		}[] = [];
+		const dateMap = new Map<string, typeof rowModel.rows>();
+
+		for (const row of rowModel.rows) {
+			const date = row.original.purchaseDate || "Unknown";
+
+			if (!dateMap.has(date)) {
+				const groupRows: typeof rowModel.rows = [];
+				dateMap.set(date, groupRows);
+				groups.push({ date, label: formatGroupDate(date), rows: groupRows });
+			}
+
+			const groupRows = dateMap.get(date);
+			groupRows?.push(row);
+		}
+
+		return groups;
+	}, [rowModel.rows]);
+
 	const handleBulkDelete = () => {
 		if (onBulkDelete && selectedCount > 0) {
 			onBulkDelete(selectedRows.map((row) => row.original));
@@ -253,6 +282,8 @@ export function TransactionsTable({
 
 	const showTopControls =
 		Boolean(createSlot) || Boolean(onMassAdd) || showFilters;
+
+	const visibleColumnsCount = table.getVisibleLeafColumns().length;
 
 	return (
 		<TooltipProvider>
@@ -351,47 +382,41 @@ export function TransactionsTable({
 						<>
 							<div className="overflow-x-auto">
 								<Table>
-									<TableHeader>
-										{table.getHeaderGroups().map((headerGroup) => (
-											<TableRow key={headerGroup.id}>
-												{headerGroup.headers.map((header) => (
-													<TableHead
-														key={header.id}
-														className="whitespace-nowrap"
-													>
-														{header.isPlaceholder
-															? null
-															: flexRender(
-																	header.column.columnDef.header,
-																	header.getContext(),
-																)}
-													</TableHead>
-												))}
-											</TableRow>
-										))}
-									</TableHeader>
 									<TableBody>
-										{rowModel.rows.map((row) => (
-											<TableRow
-												key={row.id}
-												className={cn(
-													row.original.paymentMethod === "Boleto" &&
-														row.original.dueDate &&
-														!row.original.isSettled &&
-														new Date(row.original.dueDate) < new Date()
-														? "bg-destructive/3 hover:bg-destructive/5"
-														: undefined,
-												)}
-											>
-												{row.getVisibleCells().map((cell) => (
-													<TableCell key={cell.id}>
-														{flexRender(
-															cell.column.columnDef.cell,
-															cell.getContext(),
-														)}
+										{groupedRows.map((group) => (
+											<React.Fragment key={group.date}>
+												<TableRow className="border-b hover:bg-transparent">
+													<TableCell
+														colSpan={visibleColumnsCount}
+														className="py-3 px-10 text-xs text-muted-foreground"
+													>
+														{group.label}
 													</TableCell>
+												</TableRow>
+												{group.rows.map((row) => (
+													<TableRow
+														key={row.id}
+														className={cn(
+															"border-0",
+															row.original.paymentMethod === "Boleto" &&
+																row.original.dueDate &&
+																!row.original.isSettled &&
+																new Date(row.original.dueDate) < new Date()
+																? "bg-destructive/3 hover:bg-destructive/5"
+																: undefined,
+														)}
+													>
+														{row.getVisibleCells().map((cell) => (
+															<TableCell key={cell.id} className="h-[60px]">
+																{flexRender(
+																	cell.column.columnDef.cell,
+																	cell.getContext(),
+																)}
+															</TableCell>
+														))}
+													</TableRow>
 												))}
-											</TableRow>
+											</React.Fragment>
 										))}
 									</TableBody>
 								</Table>
