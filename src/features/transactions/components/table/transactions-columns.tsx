@@ -30,7 +30,6 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/shared/components/ui/avatar";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
@@ -241,12 +240,11 @@ export function getTransactionColumns({
 								) : null}
 
 								{installmentBadge ? (
-									<Badge
-										variant="secondary"
-										className="px-1.5 py-0 text-[10px] h-4 leading-4 shrink-0"
+									<span
+										className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground"
 									>
 										{installmentBadge}
-									</Badge>
+									</span>
 								) : null}
 
 								{isAnticipated && (

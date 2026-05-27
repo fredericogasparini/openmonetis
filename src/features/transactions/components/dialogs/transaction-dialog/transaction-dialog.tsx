@@ -21,6 +21,7 @@ import {
 	deriveCreditCardPeriod,
 } from "@/features/transactions/lib/form-helpers";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -81,6 +82,7 @@ export function TransactionDialog({
 	onBulkEditRequest,
 	onSplitEditRequest,
 }: TransactionDialogProps) {
+	const [saveMore, setSaveMore] = useState(false);
 	const [dialogOpen, setDialogOpen] = useControlledState(
 		open,
 		false,
@@ -106,49 +108,62 @@ export function TransactionDialog({
 	const [pendingUploadFiles, setPendingUploadFiles] = useState<File[]>([]);
 	const [extrasOpen, setExtrasOpen] = useState(false);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const initRef = useRef<{ open: boolean; txId?: string }>({
+		open: false,
+		txId: undefined,
+	});
 
 	useEffect(() => {
-		if (dialogOpen) {
-			const initial = buildTransactionInitialState(
-				transaction,
-				defaultPayerId,
-				defaultPeriod,
-				{
-					defaultAccountId,
-					defaultCardId,
-					defaultPaymentMethod,
-					defaultPurchaseDate,
-					defaultName,
-					defaultAmount,
-					defaultTransactionType,
-					isImporting,
-				},
-			);
-
-			// Derive credit card period on open when cardId is pre-filled (create only)
-			if (
-				mode !== "update" &&
-				initial.paymentMethod === "Cartão de crédito" &&
-				initial.cardId &&
-				initial.purchaseDate
-			) {
-				const card = cardOptions.find((opt) => opt.value === initial.cardId);
-				if (card?.closingDay) {
-					initial.period = deriveCreditCardPeriod(
-						initial.purchaseDate,
-						card.closingDay,
-						card.dueDay,
-					);
-				}
-			}
-
-			setFormState(initial);
-			setErrorMessage(null);
-			setPendingFiles([]);
-			setPendingDetachIds([]);
-			setPendingUploadFiles([]);
-			setExtrasOpen(initial.condition !== "À vista");
+		if (!dialogOpen) {
+			initRef.current.open = false;
+			return;
 		}
+
+		if (initRef.current.open && initRef.current.txId === transaction?.id) {
+			return;
+		}
+
+		initRef.current = { open: true, txId: transaction?.id };
+
+		const initial = buildTransactionInitialState(
+			transaction,
+			defaultPayerId,
+			defaultPeriod,
+			{
+				defaultAccountId,
+				defaultCardId,
+				defaultPaymentMethod,
+				defaultPurchaseDate,
+				defaultName,
+				defaultAmount,
+				defaultTransactionType,
+				isImporting,
+			},
+		);
+
+		// Derive credit card period on open when cardId is pre-filled (create only)
+		if (
+			mode !== "update" &&
+			initial.paymentMethod === "Cartão de crédito" &&
+			initial.cardId &&
+			initial.purchaseDate
+		) {
+			const card = cardOptions.find((opt) => opt.value === initial.cardId);
+			if (card?.closingDay) {
+				initial.period = deriveCreditCardPeriod(
+					initial.purchaseDate,
+					card.closingDay,
+					card.dueDay,
+				);
+			}
+		}
+
+		setFormState(initial);
+		setErrorMessage(null);
+		setPendingFiles([]);
+		setPendingDetachIds([]);
+		setPendingUploadFiles([]);
+		setExtrasOpen(initial.condition !== "À vista");
 	}, [
 		dialogOpen,
 		transaction,
@@ -343,7 +358,7 @@ export function TransactionDialog({
 					: undefined,
 			recurrenceInterval:
 				formState.condition === "Recorrente" && formState.recurrenceInterval
-					? formState.recurrenceInterval as CreateTransactionInput["recurrenceInterval"]
+					? (formState.recurrenceInterval as CreateTransactionInput["recurrenceInterval"])
 					: "Mensal",
 			dueDate:
 				formState.paymentMethod === "Boleto" && formState.dueDate
@@ -393,7 +408,18 @@ export function TransactionDialog({
 					}
 					toast.success(result.message);
 					onSuccess?.();
-					setDialogOpen(false);
+					if (saveMore) {
+						setFormState((prev) => ({
+							...prev,
+							name: "",
+							amount: "",
+							note: "",
+						}));
+						setPendingFiles([]);
+						setErrorMessage(null);
+					} else {
+						setDialogOpen(false);
+					}
 					return;
 				}
 
@@ -717,18 +743,37 @@ export function TransactionDialog({
 						<p className="mt-3 text-sm text-destructive">{errorMessage}</p>
 					) : null}
 
-					<DialogFooter className="mt-4 shrink-0">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => setDialogOpen(false)}
-							disabled={isPending}
-						>
-							Cancelar
-						</Button>
-						<Button type="submit" disabled={isPending}>
-							{isPending ? "Salvando..." : submitLabel}
-						</Button>
+					<DialogFooter className="mt-4 shrink-0 sm:flex-col sm:items-end gap-3">
+						<div className="flex gap-2 w-full">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setDialogOpen(false)}
+								disabled={isPending}
+								className="w-1/2"
+							>
+								Cancelar
+							</Button>
+							<Button type="submit" disabled={isPending} className="w-1/2">
+								{isPending ? "Salvando..." : submitLabel}
+							</Button>
+						</div>
+						{mode === "create" && (
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="save-more"
+									checked={saveMore}
+									onCheckedChange={(checked) => setSaveMore(checked === true)}
+									disabled={isPending}
+								/>
+								<Label
+									htmlFor="save-more"
+									className="text-sm font-normal cursor-pointer text-muted-foreground"
+								>
+									Continuar criando
+								</Label>
+							</div>
+						)}
 					</DialogFooter>
 				</form>
 			</DialogContent>
