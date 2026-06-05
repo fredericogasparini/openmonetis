@@ -8,17 +8,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import {
-	CategoryIconBadge,
-	EstablishmentLogo,
-} from "@/shared/components/entity-avatar";
+import { CategoryIconBadge } from "@/shared/components/entity-avatar";
 import MoneyValues from "@/shared/components/money-values";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/shared/components/ui/avatar";
-import { Badge } from "@/shared/components/ui/badge";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
 	Tooltip,
@@ -279,7 +275,7 @@ export function getTransactionColumns({
 								) : null}
 							</div>
 							{dueDateLabel && (
-								<span className="text-[10px] text-destructive font-medium shrink-0">
+								<span className="text-[12px] text-destructive font-medium shrink-0">
 									{dueDateLabel}
 								</span>
 							)}
