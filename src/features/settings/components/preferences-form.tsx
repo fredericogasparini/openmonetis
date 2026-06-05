@@ -10,6 +10,8 @@ import {
 } from "@/features/transactions/lib/attachments-config";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
+import { Separator } from "@/shared/components/ui/separator";
+import { Switch } from "@/shared/components/ui/switch";
 import {
 	ToggleGroup,
 	ToggleGroupItem,
@@ -17,10 +19,12 @@ import {
 
 interface PreferencesFormProps {
 	attachmentMaxSizeMb: number;
+	showTransactionSummary: boolean;
 }
 
 export function PreferencesForm({
 	attachmentMaxSizeMb: initialAttachmentMaxSizeMb,
+	showTransactionSummary: initialShowTransactionSummary,
 }: PreferencesFormProps) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
@@ -32,6 +36,9 @@ export function PreferencesForm({
 				? initialAttachmentMaxSizeMb
 				: 50) as AttachmentSizeOption,
 		);
+	const [showTransactionSummary, setShowTransactionSummary] = useState(
+		initialShowTransactionSummary,
+	);
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -39,6 +46,7 @@ export function PreferencesForm({
 		startTransition(async () => {
 			const result = await updatePreferencesAction({
 				attachmentMaxSizeMb,
+				showTransactionSummary,
 			});
 
 			if (result.success) {
@@ -54,13 +62,40 @@ export function PreferencesForm({
 		<form onSubmit={handleSubmit} className="flex flex-col gap-8">
 			{/* Seção: Lançamentos */}
 			<section className="space-y-4">
+				<div>
+					<h3 className="text-base font-semibold">Lançamentos</h3>
+					<p className="text-sm text-muted-foreground">
+						Configurações de exibição da tabela de movimentações.
+					</p>
+				</div>
+
+				<section className="flex items-center justify-between max-w-md">
+					<div className="space-y-2">
+						<Label htmlFor="show-transaction-summary" className="text-sm">
+							Resumo da operação
+						</Label>
+						<p className="text-sm text-muted-foreground">
+							Exibe um resumo dos dados preenchidos no final do modal de
+							lançamento.
+						</p>
+					</div>
+					<Switch
+						id="show-transaction-summary"
+						checked={showTransactionSummary}
+						onCheckedChange={setShowTransactionSummary}
+						disabled={isPending}
+					/>
+				</section>
+
+				<Separator />
+
 				<section className="space-y-2">
 					<Label className="text-sm">Anexos</Label>
 					<p className="text-sm text-muted-foreground">
 						Configurações de upload de arquivos nos lançamentos.
 					</p>
 
-					<div	 className="space-y-2 max-w-md mt-4">
+					<div className="space-y-2 max-w-md mt-4">
 						<Label>Tamanho máximo por arquivo</Label>
 						<p className="text-sm text-muted-foreground">
 							Limite aplicado ao upload de PDFs e imagens.

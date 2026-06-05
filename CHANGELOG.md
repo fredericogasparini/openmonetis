@@ -5,6 +5,76 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [2.7.2] - 2026-05-31
+
+Esta versão atualiza as imagens de apresentação do OpenMonetis na landing page e no compartilhamento em redes sociais.
+
+### Alterado
+- Landing page: atualizadas as imagens de preview do dashboard e da versão PWA.
+- Compartilhamento: ajustada a imagem usada nos metadados sociais da landing page.
+
+## [2.7.1] - 2026-05-30
+
+Esta versão melhora a clareza dos fluxos de lançamento e a experiência do dashboard. Boletos de receita agora diferenciam pagamentos de recebimentos, a navegação mensal ficou mais direta e o painel ganhou atalhos mais úteis com personalização simplificada.
+
+### Adicionado
+- Preferências: nova opção para exibir ou ocultar o card `Resumo da operação` no modal de lançamento.
+- Navegação mensal: ao passar o mouse, focar ou clicar no período selecionado, agora é possível abrir um seletor e ir diretamente para outro mês.
+
+### Alterado
+- Documentação: o guia visual foi reescrito com os tokens, temas, componentes e práticas de acessibilidade atuais; o README agora apresenta a identidade visual e as preferências disponíveis.
+- Dashboard: os cards de receitas e despesas agora oferecem um atalho discreto para abrir os lançamentos da pessoa principal filtrados pelo tipo e período.
+- Dashboard: a configuração e a reordenação de widgets agora partem de uma única ação `Personalizar`, com controle de visibilidade durante a edição.
+- Dashboard: em telas pequenas, os atalhos para receita, despesa e anotação foram agrupados no menu `Adicionar`.
+- Dashboard: os títulos dos widgets agora usam sentence case para reduzir ruído visual.
+- Dashboard: os widgets receberam uma revisão ampla de UX, com hierarquia visual mais clara, listas compactas, textos mais diretos, estados acessíveis e navegação interna consistente.
+- Dashboard: o widget `Comportamento de pagamento` foi renomeado para `Distribuição de despesas`.
+- Dashboard: limites de orçamento agora aparecem apenas no widget de despesas por categoria.
+- Dashboard: o widget `Panorama de gastos` agora exibe todos os lançamentos sem filtro adicional por cartão.
+- Navegação: o menu de finanças agora oferece submenus para abrir diretamente as faturas dos cartões e os extratos das contas ativas.
+- Lançamentos: ao passar o mouse sobre `Filtros`, os filtros ativos agora aparecem em um painel compacto com remoção individual e ação para limpar todos de uma vez.
+
+### Corrigido
+- Dashboard: o saldo consolidado do widget `Minhas contas` não inclui mais contas inativas.
+- Boletos: lançamentos de receita agora exibem ações e status como `Receber`, `Recebido` e `Recebido em`, enquanto despesas continuam usando `Pagar`, `Pago` e `Pago em`.
+- Dashboard: o modal de baixa de boleto agora usa textos de recebimento e conta de destino para receitas.
+- Calendário e pessoas: os detalhes de boletos de receita agora preservam a nomenclatura de recebimento.
+
+## [2.7.0] - 2026-05-28
+
+Esta versão amplia o OpenMonetis para quem usa o app todos os dias e para quem prefere mais controle sobre os próprios dados. Os Insights ganham novas opções de IA, incluindo modelos locais via Ollama, enquanto a autenticação fica mais confortável em dispositivos pessoais. Também entram melhorias práticas em contas, lançamentos compartilhados, filtros, relatórios e dashboard, deixando os fluxos financeiros mais completos e fáceis de revisar.
+
+### Adicionado
+- Autenticação: a tela de login agora tem a opção "Manter conectado neste dispositivo", usando a persistência nativa do Better Auth para evitar novo login ao reabrir o navegador ou PWA.
+- Autenticação: novas variáveis `AUTH_SESSION_EXPIRES_IN_DAYS` e `AUTH_SESSION_UPDATE_AGE_HOURS` para configurar, em ambientes self-hosted, a duração e a renovação de sessões persistentes.
+- Contas: o extrato de uma conta agora tem um atalho "Adicionar rendimento" ao lado de "Ajustar saldo", abrindo um modal simples com valor e data para criar uma receita paga na conta atual, com categoria `Rendimentos`, forma de pagamento `Transferência bancária` e pessoa admin.
+- Insights: adicionado suporte ao provider MiniMax via `vercel-minimax-ai-provider`, incluindo os modelos M2.7, M2.7 Highspeed, M2.5, M2.5 Highspeed, M2.1, M2.1 Highspeed e M2.
+- Insights: adicionado suporte ao provider Ollama via endpoint OpenAI-compatible, com modelos sugeridos `llama3.2`, `llama3.1`, `qwen2.5` e `mistral`, além de input para qualquer modelo instalado localmente.
+- Configuração: adicionadas as variáveis `MINIMAX_API_KEY`, `OLLAMA_BASE_URL` e `OLLAMA_API_KEY` aos exemplos de ambiente, ao assistente de setup e à documentação.
+- Dependências: adicionada `@ai-sdk/openai-compatible` para integrar provedores compatíveis com a API da OpenAI, incluindo Ollama.
+- Lançamentos: o campo "Dividir com" agora permite selecionar múltiplas pessoas e exibe um campo de valor para cada participante escolhido.
+- Lançamentos: o modal de criação e edição agora exibe um card compacto de resumo da operação abaixo dos anexos, incluindo forma de pagamento, destino, categoria, pessoas, valores divididos e quantidade de lançamentos que serão criados.
+
+### Alterado
+- Contas: o modal "Adicionar rendimento" usa o mesmo seletor de data do modal de lançamentos e os botões de rendimento e ajuste de saldo agora exibem tooltip.
+- Categorias: o header de `/categories/[categoryId]` agora usa três blocos de métrica alinhados para total do mês selecionado, total do mês anterior e variação.
+- Dashboard: o botão expansível dos widgets passou de "Ver tudo" para "Expandir", com visual secundário e gradiente inferior mais compacto para diferenciar melhor a ação de abrir o modal dos links que navegam para páginas completas.
+- Insights: a resolução de modelos foi centralizada em `model-provider.ts`, reduzindo ramificações na action de geração e preservando OpenAI, Anthropic, Google, MiniMax e OpenRouter.
+- Insights: o aviso de privacidade agora diferencia providers externos de providers locais como Ollama.
+- Lançamentos: o filtro de categorias agora separa as opções em grupos de `Despesas` e `Receitas`, preservando ícones e busca dentro do seletor.
+- Lançamentos: a configuração de divisão foi movida para um modal dedicado e minimalista, com seleção direta de participantes, divisão igual e conferência do total distribuído.
+- Lançamentos: a validação de divisão agora aceita uma lista de participações, exige pessoas distintas e confere se a soma dos valores bate com o total do lançamento.
+- Lançamentos: os textos de edição de lançamentos divididos foram ajustados para tratar divisões com mais de duas pessoas.
+- Lançamentos: o card "Dividir lançamento" agora mostra avatares discretos antes dos nomes das pessoas selecionadas e remove as vírgulas entre os nomes no resumo.
+- Relatórios: em `/reports/category-trends`, o seletor de categorias não exibe mais a ação `Todas`; quando há seleção ativa, mostra apenas `Limpar seleção` e resume múltiplas escolhas pela contagem.
+- Relatórios: em `/reports/category-trends`, as tabelas agora usam os cabeçalhos `Categoria Despesa` e `Categoria Receita` e não exibem mais o ponto colorido antes do nome da categoria.
+
+### Corrigido
+- Categorias: em `/categories/[categoryId]`, o percentual de variação do header agora aparece sem `+` quando já há uma etiqueta indicando aumento, queda ou estabilidade.
+- Dashboard: os modais "Ver tudo" dos widgets agora reservam espaço para a barra de rolagem, evitando que ela fique sobreposta aos valores alinhados à direita.
+- Insights: o seletor de modelo do OpenRouter mantém o provider selecionado enquanto o usuário digita um modelo customizado sem `/`, evitando voltar automaticamente para o provider padrão.
+- Relatórios: em `/reports/category-trends`, a busca do seletor de categorias agora pesquisa pelo nome da categoria, e não apenas pelo ID interno, incluindo correspondência sem acentos.
+
 ## [2.6.4] - 2026-05-23
 
 Esta versão reúne o polimento final antes da próxima publicação: melhora o fluxo de antecipação de parcelas, deixa os dialogs de lançamentos mais seguros e consistentes, e incorpora as contribuições vindas dos PRs abertos para nomes de logos e ajustes no cadastro de transações.

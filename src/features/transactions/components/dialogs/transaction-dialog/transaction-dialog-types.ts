@@ -96,7 +96,7 @@ export interface CategorySectionProps extends BaseFieldSectionProps {
 
 export interface PayerSectionProps extends BaseFieldSectionProps {
 	payerOptions: SelectOption[];
-	secondaryPayerOptions: SelectOption[];
+	splitPayerOptions: SelectOption[];
 	totalAmount: number;
 }
 

@@ -4,6 +4,7 @@ import { db, schema } from "@/shared/lib/db";
 
 interface UserPreferences {
 	attachmentMaxSizeMb: number;
+	showTransactionSummary: boolean;
 }
 
 interface ApiToken {
@@ -30,6 +31,7 @@ export async function fetchUserPreferences(
 	const result = await db
 		.select({
 			attachmentMaxSizeMb: schema.userPreferences.attachmentMaxSizeMb,
+			showTransactionSummary: schema.userPreferences.showTransactionSummary,
 		})
 		.from(schema.userPreferences)
 		.where(eq(schema.userPreferences.userId, userId))

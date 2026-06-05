@@ -76,6 +76,9 @@ export default async function Page() {
 							<Separator />
 							<PreferencesForm
 								attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
+								showTransactionSummary={
+									userPreferences?.showTransactionSummary ?? true
+								}
 							/>
 						</div>
 					</Card>

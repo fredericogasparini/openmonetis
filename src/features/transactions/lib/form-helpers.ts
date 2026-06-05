@@ -73,6 +73,7 @@ export type TransactionFormState = {
 	paymentMethod: string;
 	payerId: string | undefined;
 	secondaryPayerId: string | undefined;
+	splitShares: Array<{ payerId: string; amount: string }>;
 	isSplit: boolean;
 	primarySplitAmount: string;
 	secondarySplitAmount: string;
@@ -172,6 +173,7 @@ export function buildTransactionInitialState(
 		paymentMethod,
 		payerId: fallbackPayerId ?? undefined,
 		secondaryPayerId: undefined,
+		splitShares: [],
 		isSplit: false,
 
 		primarySplitAmount: "",
@@ -334,6 +336,7 @@ export function applyFieldDependencies(
 	// When split is disabled, clear secondary pagador and split fields
 	if (key === "isSplit" && value === false) {
 		updates.secondaryPayerId = undefined;
+		updates.splitShares = [];
 		updates.primarySplitAmount = "";
 		updates.secondarySplitAmount = "";
 	}
@@ -342,9 +345,8 @@ export function applyFieldDependencies(
 	if (key === "isSplit" && value === true) {
 		const totalAmount = Number.parseFloat(currentState.amount) || 0;
 		if (totalAmount > 0) {
-			const half = (totalAmount / 2).toFixed(2);
-			updates.primarySplitAmount = half;
-			updates.secondarySplitAmount = half;
+			updates.primarySplitAmount = totalAmount.toFixed(2);
+			updates.secondarySplitAmount = "";
 		}
 	}
 
@@ -352,12 +354,20 @@ export function applyFieldDependencies(
 	if (key === "amount" && typeof value === "string" && currentState.isSplit) {
 		const totalAmount = Number.parseFloat(value) || 0;
 		if (totalAmount > 0) {
-			const half = (totalAmount / 2).toFixed(2);
-			updates.primarySplitAmount = half;
-			updates.secondarySplitAmount = half;
+			const otherTotal = currentState.splitShares.reduce(
+				(total, share) => total + (Number.parseFloat(share.amount) || 0),
+				0,
+			);
+			updates.primarySplitAmount = Math.max(
+				0,
+				totalAmount - otherTotal,
+			).toFixed(2);
 		} else {
 			updates.primarySplitAmount = "";
-			updates.secondarySplitAmount = "";
+			updates.splitShares = currentState.splitShares.map((share) => ({
+				...share,
+				amount: "",
+			}));
 		}
 	}
 
@@ -366,6 +376,23 @@ export function applyFieldDependencies(
 		const secondaryValue = currentState.secondaryPayerId;
 		if (secondaryValue && secondaryValue === value) {
 			updates.secondaryPayerId = undefined;
+		}
+		if (currentState.splitShares.some((share) => share.payerId === value)) {
+			const nextShares = currentState.splitShares.filter(
+				(share) => share.payerId !== value,
+			);
+			updates.splitShares = nextShares;
+			if (currentState.isSplit) {
+				const totalAmount = Number.parseFloat(currentState.amount) || 0;
+				const otherTotal = nextShares.reduce(
+					(total, share) => total + (Number.parseFloat(share.amount) || 0),
+					0,
+				);
+				updates.primarySplitAmount = Math.max(
+					0,
+					totalAmount - otherTotal,
+				).toFixed(2);
+			}
 		}
 	}
 

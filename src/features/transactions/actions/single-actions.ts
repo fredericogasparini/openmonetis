@@ -56,6 +56,7 @@ export async function createTransactionAction(
 		const ownershipError = await validateAllOwnership(user.id, {
 			payerId: data.payerId,
 			secondaryPayerId: data.secondaryPayerId,
+			splitPayerIds: data.splitShares?.map((share) => share.payerId),
 			categoryId: data.categoryId,
 			accountId: data.accountId,
 			cardId: data.cardId,
@@ -84,6 +85,7 @@ export async function createTransactionAction(
 			payerId: data.payerId ?? null,
 			isSplit: data.isSplit ?? false,
 			secondaryPayerId: data.secondaryPayerId,
+			splitShares: data.splitShares,
 			primarySplitAmountCents: data.primarySplitAmount
 				? Math.round(data.primarySplitAmount * 100)
 				: undefined,
@@ -207,6 +209,7 @@ export async function updateTransactionAction(
 		const ownershipError = await validateAllOwnership(user.id, {
 			payerId: data.payerId,
 			secondaryPayerId: data.secondaryPayerId,
+			splitPayerIds: data.splitShares?.map((share) => share.payerId),
 			categoryId: data.categoryId,
 			accountId: data.accountId,
 			cardId: data.cardId,
@@ -477,6 +480,7 @@ export async function updateTransactionSplitPairAction(
 
 		const ownershipError = await validateAllOwnership(user.id, {
 			payerId: data.payerId,
+			splitPayerIds: data.splitShares?.map((share) => share.payerId),
 			categoryId: data.categoryId,
 			accountId: data.accountId,
 			cardId: data.cardId,
@@ -604,7 +608,12 @@ export async function toggleTransactionSettlementAction(
 		const data = toggleSettlementSchema.parse(input);
 
 		const existing = await db.query.transactions.findFirst({
-			columns: { id: true, paymentMethod: true, accountId: true },
+			columns: {
+				id: true,
+				paymentMethod: true,
+				accountId: true,
+				transactionType: true,
+			},
 			where: and(
 				eq(transactions.id, data.id),
 				eq(transactions.userId, user.id),
@@ -623,6 +632,7 @@ export async function toggleTransactionSettlementAction(
 		}
 
 		const isBoleto = existing.paymentMethod === "Boleto";
+		const isIncomeBill = isBoleto && existing.transactionType === "Receita";
 		const customPaymentDate =
 			isBoleto && data.value && data.paymentDate
 				? parseLocalDateString(data.paymentDate)
@@ -648,7 +658,7 @@ export async function toggleTransactionSettlementAction(
 			if (!paymentAccount) {
 				return {
 					success: false,
-					error: "Conta de pagamento não encontrada.",
+					error: `Conta de ${isIncomeBill ? "recebimento" : "pagamento"} não encontrada.`,
 				};
 			}
 		}
@@ -678,8 +688,8 @@ export async function toggleTransactionSettlementAction(
 		return {
 			success: true,
 			message: data.value
-				? "Lançamento marcado como pago."
-				: "Pagamento desfeito com sucesso.",
+				? `Lançamento marcado como ${isIncomeBill ? "recebido" : "pago"}.`
+				: `${isIncomeBill ? "Recebimento" : "Pagamento"} desfeito com sucesso.`,
 		};
 	} catch (error) {
 		return handleActionError(error);

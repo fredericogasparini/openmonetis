@@ -66,6 +66,7 @@ const resetAccountSchema = z.object({
 
 const updatePreferencesSchema = z.object({
 	attachmentMaxSizeMb: z.number().int().min(1).max(100),
+	showTransactionSummary: z.boolean(),
 });
 
 type ResettableUser = {
@@ -578,6 +579,7 @@ export async function updatePreferencesAction(
 				.update(schema.userPreferences)
 				.set({
 					attachmentMaxSizeMb: validated.attachmentMaxSizeMb,
+					showTransactionSummary: validated.showTransactionSummary,
 					updatedAt: new Date(),
 				})
 				.where(eq(schema.userPreferences.userId, session.user.id));
@@ -586,6 +588,7 @@ export async function updatePreferencesAction(
 			await db.insert(schema.userPreferences).values({
 				userId: session.user.id,
 				attachmentMaxSizeMb: validated.attachmentMaxSizeMb,
+				showTransactionSummary: validated.showTransactionSummary,
 			});
 		}
 
