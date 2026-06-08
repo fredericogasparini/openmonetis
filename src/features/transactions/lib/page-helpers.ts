@@ -150,10 +150,7 @@ export const getSingleParam = (
 	return Array.isArray(value) ? (value[0] ?? null) : value;
 };
 
-export const getMultiParam = (
-	params: ResolvedSearchParams,
-	key: string,
-): string[] => {
+const getMultiParam = (params: ResolvedSearchParams, key: string): string[] => {
 	const value = params?.[key];
 	if (!value) {
 		return [];

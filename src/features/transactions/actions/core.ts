@@ -32,19 +32,6 @@ import { addMonthsToPeriod, dateToPeriod, MONTH_NAMES } from "@/shared/utils/per
 // Authorization Validation Functions
 // ============================================================================
 
-export async function validatePayerOwnership(
-	userId: string,
-	payerId: string | null | undefined,
-): Promise<boolean> {
-	if (!payerId) return true;
-
-	const pagador = await db.query.payers.findFirst({
-		where: and(eq(payers.id, payerId), eq(payers.userId, userId)),
-	});
-
-	return !!pagador;
-}
-
 const normalizeIds = (ids: Array<string | null | undefined>) => [
 	...new Set(ids.filter((id): id is string => Boolean(id))),
 ];
@@ -596,7 +583,7 @@ type SplitShareInput = {
 	amount: number;
 };
 
-export const resolveSplitShares = (data: {
+const resolveSplitShares = (data: {
 	payerId?: string | null;
 	secondaryPayerId?: string | null;
 	splitShares?: SplitShareInput[];

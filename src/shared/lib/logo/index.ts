@@ -36,7 +36,7 @@ export const getLogoDisplayName = (logo?: string | null): string => {
  * @example
  * deriveNameFromLogo("my-company-logo.png") // "My Company Logo"
  */
-export const deriveNameFromLogo = (logo?: string | null) => {
+const deriveNameFromLogo = (logo?: string | null) => {
 	if (!logo) {
 		return "";
 	}
