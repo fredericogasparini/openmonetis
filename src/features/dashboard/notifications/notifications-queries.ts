@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, isNotNull, lt, ne, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, ne, sql } from "drizzle-orm";
 import {
 	budgets,
 	cards,
@@ -33,7 +33,6 @@ import {
 
 export type { DashboardNotificationsSnapshot } from "@/shared/lib/types/notifications";
 
-const PAYMENT_METHOD_BOLETO = "Boleto";
 const BUDGET_CRITICAL_THRESHOLD = 80;
 
 type PersistedNotificationState = {
@@ -46,8 +45,8 @@ type PersistedNotificationState = {
 const buildInvoiceNotificationKey = (cardId: string, period: string) =>
 	`invoice-${cardId}-${period}`;
 
-const buildBoletoNotificationKey = (transactionId: string) =>
-	`boleto-${transactionId}`;
+const buildPendingTransactionNotificationKey = (transactionId: string) =>
+	`pending-${transactionId}`;
 
 const buildBudgetNotificationKey = (
 	categoryId: string | null,
@@ -85,7 +84,7 @@ function mergeNotificationState<
 /**
  * Busca todas as notificações do dashboard:
  * - Faturas de cartão atrasadas ou com vencimento próximo
- * - Boletos não pagos atrasados ou com vencimento próximo
+ * - Lançamentos pendentes (sem cartão, purchaseDate no passado)
  * - Orçamentos excedidos (≥ 100%) ou críticos (≥ 80%)
  */
 export async function fetchDashboardNotifications(
@@ -99,18 +98,14 @@ export async function fetchDashboardNotifications(
 	const adminPayerId = await getAdminPayerId(userId);
 
 	// --- Build conditions that depend on adminPayerId ---
-	const boletosConditions = [
+	const pendingConditions = [
 		eq(transactions.userId, userId),
-		eq(transactions.paymentMethod, PAYMENT_METHOD_BOLETO),
+		isNull(transactions.cardId),
 		eq(transactions.isSettled, false),
-	];
-	if (adminPayerId) {
-		boletosConditions.push(eq(transactions.payerId, adminPayerId));
-	}
-	boletosConditions.push(isNotNull(transactions.dueDate));
-	boletosConditions.push(
+		ne(transactions.condition, "cancelado"),
+		sql`${transactions.purchaseDate} < ${today}::date`,
 		gte(transactions.period, addMonthsToPeriod(currentPeriod, -12)),
-	);
+	];
 
 	const budgetJoinConditions = [
 		eq(transactions.categoryId, budgets.categoryId),
@@ -172,7 +167,7 @@ export async function fetchDashboardNotifications(
 		overdueInvoices,
 		currentInvoices,
 		nextPeriodInvoices,
-		boletosRows,
+		pendingRows,
 		budgetRows,
 	] = await Promise.all([
 		// Faturas atrasadas (períodos anteriores)
@@ -216,17 +211,17 @@ export async function fetchDashboardNotifications(
 		// Faturas do período atual e próximo
 		buildPeriodInvoicesQuery(currentPeriod),
 		buildPeriodInvoicesQuery(nextPeriod),
-		// Boletos não pagos
+		// Lançamentos pendentes (sem cartão de crédito, purchaseDate no passado)
 		db
 			.select({
 				id: transactions.id,
 				name: transactions.name,
 				amount: transactions.amount,
-				dueDate: transactions.dueDate,
+				purchaseDate: transactions.purchaseDate,
 				period: transactions.period,
 			})
 			.from(transactions)
-			.where(and(...boletosConditions)),
+			.where(and(...pendingConditions)),
 		// Orçamentos do período atual
 		db
 			.select({
@@ -383,78 +378,31 @@ export async function fetchDashboardNotifications(
 		});
 	}
 
-	// Boletos
-	for (const boleto of boletosRows) {
-		const dueDate = toDateOnlyString(boleto.dueDate);
-		if (!dueDate) continue;
+	// Lançamentos pendentes (despesas e receitas sem cartão de crédito com purchaseDate no passado)
+	for (const tx of pendingRows) {
+		const purchaseDate = toDateOnlyString(tx.purchaseDate);
+		if (!purchaseDate) continue;
 
-		const boletoIsOverdue = isDateOnlyPast(dueDate, today);
-		const boletoIsDueSoon = isDateOnlyWithinDays(
-			dueDate,
-			DAYS_THRESHOLD,
-			today,
-		);
-		const isOldPeriod = boleto.period < currentPeriod;
-		const isCurrentPeriod = boleto.period === currentPeriod;
-		const isNextPeriod = boleto.period === nextPeriod;
-		const amount = toNumber(boleto.amount);
-		const href = `/transactions?periodo=${formatPeriodForUrl(boleto.period)}`;
-		const notificationKey = buildBoletoNotificationKey(boleto.id);
+		const amount = toNumber(tx.amount);
+		const href = `/transactions?periodo=${formatPeriodForUrl(tx.period)}`;
+		const notificationKey = buildPendingTransactionNotificationKey(tx.id);
 
-		if (isOldPeriod) {
-			notifications.push({
-				type: "boleto",
-				name: boleto.name,
-				dueDate,
-				status: "overdue",
-				amount: Math.abs(amount),
-				period: boleto.period,
-				showAmount: true,
-				notificationKey,
-				fingerprint: "overdue",
-				href,
-				isRead: false,
-				isArchived: false,
-				readAt: null,
-				archivedAt: null,
-			});
-		} else if (isCurrentPeriod && (boletoIsOverdue || boletoIsDueSoon)) {
-			const notificationStatus = boletoIsOverdue ? "overdue" : "due_soon";
-
-			notifications.push({
-				type: "boleto",
-				name: boleto.name,
-				dueDate,
-				status: notificationStatus,
-				amount: Math.abs(amount),
-				period: boleto.period,
-				showAmount: boletoIsOverdue,
-				notificationKey,
-				fingerprint: notificationStatus,
-				href,
-				isRead: false,
-				isArchived: false,
-				readAt: null,
-				archivedAt: null,
-			});
-		} else if (isNextPeriod && boletoIsDueSoon) {
-			notifications.push({
-				type: "boleto",
-				name: boleto.name,
-				dueDate,
-				status: "due_soon",
-				amount: Math.abs(amount),
-				period: boleto.period,
-				showAmount: false,
-				notificationKey,
-				fingerprint: "due_soon",
-				href,
-				isRead: false,
-				isArchived: false,
-				readAt: null,
-				archivedAt: null,
-			});
-		}
+		notifications.push({
+			type: "pending",
+			name: tx.name,
+			dueDate: purchaseDate,
+			status: "overdue",
+			amount: Math.abs(amount),
+			period: tx.period,
+			showAmount: true,
+			notificationKey,
+			fingerprint: "overdue",
+			href,
+			isRead: false,
+			isArchived: false,
+			readAt: null,
+			archivedAt: null,
+		});
 	}
 
 	// Ordenar: atrasados primeiro, depois por data de vencimento

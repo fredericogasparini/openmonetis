@@ -9,7 +9,6 @@ import {
 	RiBarChart2Line,
 	RiCheckLine,
 	RiErrorWarningLine,
-	RiFileListLine,
 	RiInboxUnarchiveLine,
 	RiTimeLine,
 } from "@remixicon/react";
@@ -36,7 +35,7 @@ type NotificationBellContentProps = {
 	displayedInboxPendingCount: number;
 	displayedBudgetNotifications: ResolvedBudgetNotification[];
 	invoiceNotifications: ResolvedDashboardNotification[];
-	boletoNotifications: ResolvedDashboardNotification[];
+	pendingNotifications: ResolvedDashboardNotification[];
 	onInboxNavigate: () => void;
 	onNotificationNavigate: (notification: StatefulNotification) => Promise<void>;
 	onToggleRead: (notification: StatefulNotification) => Promise<void>;
@@ -309,7 +308,7 @@ function NotificationSection<
 }
 
 // ---------------------------------------------------------------------------
-// Icon helpers (consistent between invoice / boleto)
+// Icon helpers (invoice)
 // ---------------------------------------------------------------------------
 
 function DueDateIcon({ isOverdue }: { isOverdue: boolean }) {
@@ -364,7 +363,7 @@ export function NotificationBellContent({
 	displayedInboxPendingCount,
 	displayedBudgetNotifications,
 	invoiceNotifications,
-	boletoNotifications,
+	pendingNotifications,
 	onInboxNavigate,
 	onNotificationNavigate,
 	onToggleRead,
@@ -438,15 +437,15 @@ export function NotificationBellContent({
 			/>
 
 			<NotificationSection
-				icon={<RiFileListLine className="size-3" />}
-				title="Boletos"
-				items={boletoNotifications}
-				isOverdue={(n) => n.status === "overdue"}
+				icon={<RiTimeLine className="size-3" />}
+				title="Lançamentos Pendentes"
+				items={pendingNotifications}
+				isOverdue={() => true}
 				showUnreadIndicator
-				renderIcon={(n) => <DueDateIcon isOverdue={n.status === "overdue"} />}
+				renderIcon={() => <RiAlertFill className="size-5 text-destructive" />}
 				renderTitle={(n) => n.name}
 				renderDetail={(n) =>
-					formatDueDateDetail(n.status, n.dueDate, n.amount, true)
+					`Lançado em ${formatDate(n.dueDate)} — ${formatCurrency(n.amount)}`
 				}
 				onNavigate={(n) => onNotificationNavigate(n)}
 				onToggleRead={(n) => onToggleRead(n)}

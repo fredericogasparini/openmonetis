@@ -36,7 +36,7 @@ type UseNotificationBellReturn = {
 	displayedInboxPendingCount: number;
 	displayedBudgetNotifications: ResolvedBudgetNotification[];
 	invoiceNotifications: ResolvedDashboardNotification[];
-	boletoNotifications: ResolvedDashboardNotification[];
+	pendingNotifications: ResolvedDashboardNotification[];
 	handleInboxNavigate: () => void;
 	handleNotificationNavigate: (
 		notification: StatefulNotification,
@@ -151,8 +151,8 @@ export function useNotificationBell({
 	const invoiceNotifications = displayedNotifications.filter(
 		(notification) => notification.type === "invoice",
 	);
-	const boletoNotifications = displayedNotifications.filter(
-		(notification) => notification.type === "boleto",
+	const pendingNotifications = displayedNotifications.filter(
+		(notification) => notification.type === "pending",
 	);
 	const unreadDashboardCount = [
 		...activeNotifications,
@@ -309,7 +309,7 @@ export function useNotificationBell({
 		displayedInboxPendingCount,
 		displayedBudgetNotifications,
 		invoiceNotifications,
-		boletoNotifications,
+		pendingNotifications,
 		handleInboxNavigate,
 		handleNotificationNavigate,
 		handleToggleRead,

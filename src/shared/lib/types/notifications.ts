@@ -13,7 +13,7 @@ type DashboardNotificationStateFields = {
 };
 
 export type DashboardNotification = {
-	type: "invoice" | "boleto";
+	type: "invoice" | "pending";
 	name: string;
 	dueDate: string;
 	status: NotificationType;
