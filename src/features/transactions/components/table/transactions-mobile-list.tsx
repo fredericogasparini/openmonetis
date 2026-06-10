@@ -203,7 +203,7 @@ function TransactionMobileRow({
 	const isRecorrente = condition === "Recorrente";
 
 	const accountContent = (
-		<div className="flex items-center gap-1.5 min-w-0">
+		<div className="flex items-center gap-2 min-w-0">
 			{logoSrc && (
 				<Avatar className="size-4 rounded-full shrink-0">
 					<AvatarImage src={logoSrc} alt={`Logo de ${accountLabel}`} />
@@ -224,7 +224,7 @@ function TransactionMobileRow({
 	);
 
 	const payerContent = (
-		<div className="flex items-center gap-1.5 min-w-0">
+		<div className="flex items-center gap-2 min-w-0">
 			<Avatar className="size-4 shrink-0">
 				<AvatarImage src={payerAvatarSrc} alt={`Avatar de ${payerLabel}`} />
 				<AvatarFallback className="text-[7px] font-medium uppercase">
@@ -257,7 +257,7 @@ function TransactionMobileRow({
 				</Tooltip>
 				{(isParcelado || isRecorrente) && (
 					<div
-						className="absolute -bottom-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-white text-black"
+						className="absolute -right-1.5 -bottom-1.5 flex size-5 items-center justify-center rounded-full bg-card text-foreground"
 						aria-hidden
 					>
 						{isParcelado ? (
@@ -270,7 +270,7 @@ function TransactionMobileRow({
 			</div>
 
 			<div className="min-w-0 flex-1 flex flex-col gap-1">
-				<div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+				<div className="flex items-center gap-2 flex-wrap mb-0.5 min-w-0">
 					<span className="truncate text-sm font-medium text-foreground">
 						{name}
 					</span>
@@ -328,7 +328,7 @@ function TransactionMobileRow({
 					)}
 				</div>
 
-				<div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
+				<div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
 					{isOwnData && accountHref ? (
 						<Link
 							href={accountHref}
@@ -342,7 +342,7 @@ function TransactionMobileRow({
 				</div>
 
 				{(payerId || pagadorName || dueDateLabel) && (
-					<div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 min-w-0">
+					<div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
 						{(payerId || pagadorName) &&
 							(payerId ? (
 								<Link
