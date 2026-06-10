@@ -296,7 +296,7 @@ export function TransactionsTable({
 			{showTopControls ? (
 				<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 					{createSlot || onMassAdd ? (
-						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+						<div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto">
 							{createSlot}
 							{onMassAdd ? (
 								<Tooltip>
@@ -380,7 +380,7 @@ export function TransactionsTable({
 				/>
 			) : null}
 
-			<Card className="py-2">
+			<Card className="w-full py-2">
 				<CardContent className="px-2 py-4 sm:px-4">
 					{hasRows ? (
 						<>
@@ -400,7 +400,7 @@ export function TransactionsTable({
 								showActions={showActions}
 							/>
 
-							<div className="hidden overflow-x-auto md:block">
+							<div className="hidden w-full md:block">
 								<Table>
 									<TableBody>
 										{groupedRows.map((group) => (
@@ -427,7 +427,13 @@ export function TransactionsTable({
 														)}
 													>
 														{row.getVisibleCells().map((cell) => (
-															<TableCell key={cell.id} className="h-[60px]">
+															<TableCell
+																key={cell.id}
+																className={cn(
+																	"h-[60px]",
+																	cell.column.id === "description" && "w-full",
+																)}
+															>
 																{flexRender(
 																	cell.column.columnDef.cell,
 																	cell.getContext(),

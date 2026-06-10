@@ -7,7 +7,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CategoryIconBadge } from "@/shared/components/entity-avatar";
 import MoneyValues from "@/shared/components/money-values";
 import {
@@ -32,9 +32,26 @@ import { TransactionSettlementButton } from "./transaction-settlement-button";
 
 function TruncatedDescription({ name }: { name: string }) {
 	const textRef = useRef<HTMLSpanElement>(null);
-	const [isTruncated] = useState(false);
+	const [isTruncated, setIsTruncated] = useState(false);
+
+	useEffect(() => {
+		const element = textRef.current;
+		if (!element || !name) return;
+
+		const checkTruncation = () => {
+			setIsTruncated(element.scrollWidth > element.clientWidth);
+		};
+
+		checkTruncation();
+
+		window.addEventListener("resize", checkTruncation);
+		return () => {
+			window.removeEventListener("resize", checkTruncation);
+		};
+	}, [name]);
+
 	const content = (
-		<span ref={textRef} className="font-medium truncate block">
+		<span ref={textRef} className="block truncate font-medium">
 			{name}
 		</span>
 	);
@@ -162,9 +179,9 @@ export function getTransactionColumns({
 					installmentCount > 1;
 
 				return (
-					<div className="flex items-center gap-3 min-w-0">
+					<div className="flex min-w-0 items-center gap-3">
 						<Tooltip>
-							<TooltipTrigger className="cursor-default rounded-full shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+							<TooltipTrigger className="shrink-0 cursor-default rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
 								<CategoryIconBadge
 									icon={categoriaIcon}
 									name={categoriaName ?? "Sem categoria"}
@@ -175,14 +192,14 @@ export function getTransactionColumns({
 								<p>{categoriaName ?? "Sem categoria"}</p>
 							</TooltipContent>
 						</Tooltip>
-						<div className="flex flex-col py-0.5 min-w-0">
-							<div className="flex items-center gap-1.5 min-w-0">
+						<div className="flex flex-col min-w-0 py-0.5">
+							<div className="flex min-w-0 items-center gap-1.5">
 								<TruncatedDescription name={name} />
 
 								{isDivided && (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-0.5 shrink-0">
+											<span className="inline-flex shrink-0 p-0.5 rounded-full">
 												<RiGroupLine
 													size={16}
 													className="text-muted-foreground"
@@ -200,13 +217,13 @@ export function getTransactionColumns({
 								{isLastInstallment ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex p-0.5 shrink-0">
+											<span className="inline-flex shrink-0 p-0.5">
 												<Image
 													src="/icons/party.svg"
 													alt="Última parcela"
 													width={16}
 													height={16}
-													className="h-4 w-4"
+													className="size-4"
 												/>
 												<span className="sr-only">Última parcela</span>
 											</span>
@@ -224,7 +241,7 @@ export function getTransactionColumns({
 								{isAnticipated && (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-0.5 shrink-0">
+											<span className="inline-flex shrink-0 p-0.5 rounded-full">
 												<RiTimeLine
 													size={16}
 													className="text-muted-foreground"
@@ -242,9 +259,9 @@ export function getTransactionColumns({
 								{hasNote ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-0.5 hover:bg-accent transition-colors duration-300 shrink-0">
+											<span className="inline-flex shrink-0 p-0.5 rounded-full transition-colors duration-300 hover:bg-accent">
 												<RiChat1Line
-													className="h-4 w-4 text-muted-foreground"
+													className="size-4 text-muted-foreground"
 													aria-hidden
 												/>
 												<span className="sr-only">Ver anotação</span>
@@ -263,9 +280,9 @@ export function getTransactionColumns({
 								{hasAttachments ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<span className="inline-flex rounded-full p-0.5 shrink-0">
+											<span className="inline-flex shrink-0 p-0.5 rounded-full">
 												<RiAttachment2
-													className="h-4 w-4 text-muted-foreground"
+													className="size-4 text-muted-foreground"
 													aria-hidden
 												/>
 												<span className="sr-only">Possui anexos</span>
@@ -276,7 +293,7 @@ export function getTransactionColumns({
 								) : null}
 							</div>
 							{dueDateLabel && (
-								<span className="text-[12px] text-destructive font-medium shrink-0">
+								<span className="shrink-0 text-[12px] font-medium text-destructive">
 									{dueDateLabel}
 								</span>
 							)}
@@ -297,7 +314,7 @@ export function getTransactionColumns({
 				const avatarSrc = getAvatarSrc(pagadorAvatar);
 				const initial = displayName.charAt(0).toLowerCase() || "?";
 				const content = (
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1.5 pr-3">
 						<Avatar className="size-8">
 							<AvatarImage src={avatarSrc} alt={`Avatar de ${label}`} />
 							<AvatarFallback className="text-[10px] font-medium uppercase">
@@ -313,7 +330,7 @@ export function getTransactionColumns({
 				return (
 					<Link
 						href={`/payers/${payerId}`}
-						className="inline-block hover:underline"
+						className="block hover:underline"
 						title={label}
 					>
 						{content}
@@ -348,10 +365,10 @@ export function getTransactionColumns({
 				const condIcon = getConditionIcon(condition);
 
 				const content = (
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1.5 pr-3">
 						<div
 							className={cn(
-								"flex items-center text-muted-foreground w-4",
+								"flex w-4 items-center text-muted-foreground",
 								condition === "À vista" && "invisible",
 							)}
 							title={condition !== "À vista" ? condition : undefined}
@@ -370,7 +387,7 @@ export function getTransactionColumns({
 							)}
 							<span
 								className={cn(
-									"truncate text-sm underline-offset-2",
+									"truncate text-sm",
 									isOwnData && href && "group-hover:underline",
 								)}
 							>
@@ -396,7 +413,7 @@ export function getTransactionColumns({
 				return (
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Link href={href} className="group inline-block">
+							<Link href={href} className="group block">
 								{content}
 							</Link>
 						</TooltipTrigger>
@@ -416,12 +433,9 @@ export function getTransactionColumns({
 				const method = row.original.paymentMethod;
 				const icon = getPaymentMethodIcon(method);
 				return (
-					<div
-						className="flex items-center gap-1.5 text-sm min-w-0"
-						title={method}
-					>
+					<div className="flex items-center gap-1.5 pr-6" title={method}>
 						<span className="shrink-0">{icon}</span>
-						<span className="truncate block">
+						<span className="block truncate">
 							{getPaymentMethodTableLabel(method)}
 						</span>
 					</div>
@@ -439,7 +453,7 @@ export function getTransactionColumns({
 				const isIncomingTransfer =
 					isTransfer && Number(row.original.amount) > 0;
 				return (
-					<div className="text-right flex justify-end">
+					<div className="flex justify-end text-right">
 						<MoneyValues
 							amount={row.original.amount}
 							showPositiveSign={isReceita || isIncomingTransfer}
@@ -462,7 +476,7 @@ export function getTransactionColumns({
 			size: 100,
 			enableSorting: false,
 			cell: ({ row }) => (
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-1">
 					<TransactionSettlementButton
 						item={row.original}
 						isLoading={isSettlementLoading(row.original.id)}
