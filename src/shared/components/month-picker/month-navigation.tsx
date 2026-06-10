@@ -1,6 +1,6 @@
 "use client";
 
-import { RiArrowDropDownLine, RiCalendarLine } from "@remixicon/react";
+import { RiCalendarLine } from "@remixicon/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/shared/components/ui/button";
@@ -90,7 +90,7 @@ export default function MonthNavigation() {
 				/>
 
 				<div className="flex min-w-0 items-center">
-					<Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+					<Popover open={isPickerOpen} onOpenChange={setIsPickerOpen} modal={false}>
 						<PopoverTrigger asChild>
 							<Button
 								variant="ghost"
@@ -109,10 +109,6 @@ export default function MonthNavigation() {
 									<RiCalendarLine className="size-4 text-primary" />
 								)}
 								<span className="truncate capitalize">{currentMonthLabel}</span>
-								<RiArrowDropDownLine
-									className="size-4 text-muted-foreground/50"
-									aria-hidden
-								/>
 							</Button>
 						</PopoverTrigger>
 						<PopoverContent
@@ -120,6 +116,7 @@ export default function MonthNavigation() {
 							align="start"
 							onMouseEnter={handlePickerOpen}
 							onMouseLeave={handlePickerClose}
+							onCloseAutoFocus={(e) => e.preventDefault()}
 						>
 							<MonthPicker
 								selectedMonth={periodToDate(period)}
