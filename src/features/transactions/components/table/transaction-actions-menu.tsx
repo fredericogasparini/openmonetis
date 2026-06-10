@@ -92,7 +92,7 @@ export function TransactionActionsMenu({
 					</DropdownMenuItem>
 				) : null}
 
-				{!item.readonly && !isOwnData ? (
+				{!isOwnData ? (
 					<DropdownMenuItem
 						onSelect={() => onImport?.(item)}
 						disabled={!onImport}
