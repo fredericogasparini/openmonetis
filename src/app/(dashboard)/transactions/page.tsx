@@ -112,6 +112,7 @@ export default async function Page({ searchParams }: PageProps) {
 						source: "transactions",
 						period: selectedPeriod,
 						filters: searchFilters,
+						viewMode,
 					}}
 					attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 					viewMode={viewMode}

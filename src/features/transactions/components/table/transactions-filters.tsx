@@ -406,6 +406,7 @@ interface TransactionsFiltersProps {
 	accountCardOptions: AccountCardFilterOption[];
 	className?: string;
 	exportButton?: ReactNode;
+	viewModeButton?: ReactNode;
 	hideAdvancedFilters?: boolean;
 }
 
@@ -415,6 +416,7 @@ export function TransactionsFilters({
 	accountCardOptions,
 	className,
 	exportButton,
+	viewModeButton,
 	hideAdvancedFilters = false,
 }: TransactionsFiltersProps) {
 	const router = useRouter();
@@ -805,6 +807,12 @@ export function TransactionsFilters({
 			</div>
 
 			<div className="flex w-full gap-2 md:w-auto">
+				{viewModeButton && (
+					<div className="flex-1 md:flex-none *:w-full *:md:w-auto">
+						{viewModeButton}
+					</div>
+				)}
+
 				{exportButton && (
 					<div className="flex-1 md:flex-none *:w-full *:md:w-auto">
 						{exportButton}

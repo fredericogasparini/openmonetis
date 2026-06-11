@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { fetchAccountTransactions } from "@/features/accounts/statement-queries";
+import type { TransactionViewMode } from "@/features/transactions/lib/constants";
 import type { TransactionsExportContext } from "@/features/transactions/lib/export-types";
 import {
 	buildSluggedFilters,
@@ -49,6 +50,7 @@ const exportTransactionsSchema: z.ZodType<TransactionsExportContext> = z.object(
 		cardId: z.string().min(1).nullable().optional(),
 		payerId: z.string().min(1).nullable().optional(),
 		settledOnly: z.boolean().optional(),
+		viewMode: z.string().nullable().optional(),
 	},
 );
 
@@ -72,6 +74,7 @@ export async function exportTransactionsDataAction(
 			accountId: validated.accountId ?? undefined,
 			cardId: validated.cardId ?? undefined,
 			payerId: validated.payerId ?? undefined,
+			viewMode: (validated.viewMode as TransactionViewMode) ?? undefined,
 		});
 
 		const rows =

@@ -1,6 +1,8 @@
 "use client";
 import {
 	RiArrowLeftRightLine,
+	RiCheckLine,
+	RiEyeLine,
 	RiFileExcel2Line,
 	RiFlashlightFill,
 } from "@remixicon/react";
@@ -28,12 +30,11 @@ import { EmptyState } from "@/shared/components/feedback/empty-state";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/shared/components/ui/select";
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import {
 	Table,
 	TableBody,
@@ -319,6 +320,98 @@ export function TransactionsTable({
 
 	const visibleColumnsCount = table.getVisibleLeafColumns().length;
 
+	const viewModeButton = (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					variant="outline"
+					className="text-sm border-dashed gap-2"
+					aria-label="Alterar visão dos lançamentos"
+				>
+					<RiEyeLine className="size-4" />
+					Visualizar
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start">
+				{(() => {
+					const isInvoice = viewMode === TRANSACTION_VIEW_MODES.INVOICE;
+					const isPurchase = viewMode === TRANSACTION_VIEW_MODES.PURCHASE;
+
+					return (
+						<>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<DropdownMenuItem
+										onClick={() =>
+											handleViewModeChange(TRANSACTION_VIEW_MODES.INVOICE)
+										}
+									>
+										<div
+											className={cn(
+												"border-input shrink-0 rounded-lg border shadow-xs transition-shadow outline-none size-4 mr-2 flex items-center justify-center",
+												isInvoice
+													? "bg-primary dark:bg-primary text-primary-foreground dark:text-primary-foreground border-primary dark:border-primary"
+													: "dark:bg-input/30",
+											)}
+										>
+											{isInvoice && (
+												<RiCheckLine className="size-3.5 text-current" />
+											)}
+										</div>
+										Visão de faturamento
+									</DropdownMenuItem>
+								</TooltipTrigger>
+								<TooltipContent
+									side="right"
+									align="center"
+									className="max-w-[280px]"
+								>
+									<p>
+										Exibe as compras do cartão de crédito no mês em que elas
+										serão pagas na fatura.
+									</p>
+								</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<DropdownMenuItem
+										onClick={() =>
+											handleViewModeChange(TRANSACTION_VIEW_MODES.PURCHASE)
+										}
+									>
+										<div
+											className={cn(
+												"border-input shrink-0 rounded-lg border shadow-xs transition-shadow outline-none size-4 mr-2 flex items-center justify-center",
+												isPurchase
+													? "bg-primary dark:bg-primary text-primary-foreground dark:text-primary-foreground border-primary dark:border-primary"
+													: "dark:bg-input/30",
+											)}
+										>
+											{isPurchase && (
+												<RiCheckLine className="size-3.5 text-current" />
+											)}
+										</div>
+										Visão de consumo
+									</DropdownMenuItem>
+								</TooltipTrigger>
+								<TooltipContent
+									side="right"
+									align="center"
+									className="max-w-[280px]"
+								>
+									<p>
+										Exibe as compras do cartão de crédito no mês em que foram
+										feitas (e parcelas nos meses seguintes).
+									</p>
+								</TooltipContent>
+							</Tooltip>
+						</>
+					);
+				})()}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+
 	return (
 		<TooltipProvider>
 			{showTopControls ? (
@@ -326,23 +419,6 @@ export function TransactionsTable({
 					{createSlot || onMassAdd ? (
 						<div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto">
 							{createSlot}
-							<Select value={viewMode} onValueChange={handleViewModeChange}>
-								<SelectTrigger
-									id="transactions-view-mode-select"
-									className="h-9 w-full text-sm border-dashed sm:w-[200px]"
-									aria-label="Alterar visão dos lançamentos"
-								>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value={TRANSACTION_VIEW_MODES.INVOICE}>
-										Pela Data da Fatura
-									</SelectItem>
-									<SelectItem value={TRANSACTION_VIEW_MODES.PURCHASE}>
-										Pela Data da Compra
-									</SelectItem>
-								</SelectContent>
-							</Select>
 							{onMassAdd ? (
 								<Tooltip>
 									<TooltipTrigger asChild>
@@ -391,6 +467,7 @@ export function TransactionsTable({
 							accountCardOptions={accountCardFilterOptions}
 							className="w-full lg:flex-1 lg:justify-end"
 							hideAdvancedFilters={hasOtherUserData}
+							viewModeButton={viewModeButton}
 							exportButton={
 								selectedPeriod ? (
 									<TransactionsExport

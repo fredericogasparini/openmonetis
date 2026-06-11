@@ -429,14 +429,18 @@ export const buildTransactionWhere = ({
 			);
 		}
 	} else if (viewMode === TRANSACTION_VIEW_MODES.PURCHASE) {
-		// Visão por data de compra: range do mês selecionado
+		// Visão por data de compra (consumo): range do mês selecionado, considerando que parcelas
+		// subsequentes de compras parceladas são jogadas para os meses seguintes.
 		const [yearStr, monthStr] = period.split("-");
 		const year = Number.parseInt(yearStr ?? "0", 10);
 		const month = Number.parseInt(monthStr ?? "1", 10);
 		const firstDay = new Date(year, month - 1, 1);
 		const lastDay = new Date(year, month, 0); // dia 0 do mês seguinte = último dia do mês
-		where.push(gte(transactions.purchaseDate, firstDay));
-		where.push(lte(transactions.purchaseDate, lastDay));
+
+		const adjustedPurchaseDate = sql<Date>`${transactions.purchaseDate} + (coalesce(${transactions.currentInstallment}, 1) - 1) * INTERVAL '1 month'`;
+
+		where.push(gte(adjustedPurchaseDate, firstDay));
+		where.push(lte(adjustedPurchaseDate, lastDay));
 	} else {
 		// Visão padrão: filtra pelo campo period (data da fatura)
 		where.push(eq(transactions.period, period));

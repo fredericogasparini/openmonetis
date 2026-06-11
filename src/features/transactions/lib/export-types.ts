@@ -23,6 +23,7 @@ export type TransactionsExportContext = {
 	cardId?: string | null;
 	payerId?: string | null;
 	settledOnly?: boolean;
+	viewMode?: string | null;
 };
 
 export type TransactionsPaginationState = {

@@ -69,7 +69,7 @@ export function PreferencesForm({
 					</p>
 				</div>
 
-				<section className="flex items-center justify-between max-w-md">
+				<section className="flex items-start justify-between">
 					<div className="space-y-2">
 						<Label htmlFor="show-transaction-summary" className="text-sm">
 							Resumo da operação
