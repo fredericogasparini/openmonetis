@@ -7,6 +7,7 @@ import {
 	buildSlugMaps,
 	buildTransactionWhere,
 	extractTransactionSearchFilters,
+	extractTransactionViewMode,
 	getSingleParam,
 	mapTransactionsData,
 	type ResolvedSearchParams,
@@ -39,6 +40,7 @@ export default async function Page({ searchParams }: PageProps) {
 
 	const searchFilters = extractTransactionSearchFilters(resolvedSearchParams);
 	const pagination = resolveTransactionPagination(resolvedSearchParams);
+	const viewMode = extractTransactionViewMode(resolvedSearchParams);
 
 	const [filterSources, userPreferences] = await Promise.all([
 		fetchTransactionFilterSources(userId),
@@ -53,6 +55,7 @@ export default async function Page({ searchParams }: PageProps) {
 		period: selectedPeriod,
 		filters: searchFilters,
 		slugMaps,
+		viewMode,
 	});
 
 	const [transactionsPage, estabelecimentos] = await Promise.all([
@@ -111,6 +114,7 @@ export default async function Page({ searchParams }: PageProps) {
 						filters: searchFilters,
 					}}
 					attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
+					viewMode={viewMode}
 				/>
 			</LogoPrefetchProvider>
 		</main>

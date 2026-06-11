@@ -18,6 +18,10 @@ import {
 	detachAttachmentBulkAction,
 	getPresignedUploadUrlAction,
 } from "@/features/transactions/actions/attachments";
+import {
+	TRANSACTION_VIEW_MODES,
+	type TransactionViewMode,
+} from "@/features/transactions/lib/constants";
 import { ConfirmActionDialog } from "@/shared/components/confirm-action-dialog";
 import { Button } from "@/shared/components/ui/button";
 import type {
@@ -73,6 +77,7 @@ interface TransactionsPageProps {
 	pagination?: TransactionsPaginationState;
 	exportContext?: TransactionsExportContext;
 	attachmentMaxSizeMb?: number;
+	viewMode?: TransactionViewMode;
 	// Opções específicas para o dialog de importação (quando visualizando dados de outro usuário)
 	importPayerOptions?: SelectOption[];
 	importSplitPayerOptions?: SelectOption[];
@@ -105,6 +110,7 @@ export function TransactionsPage({
 	pagination,
 	exportContext,
 	attachmentMaxSizeMb,
+	viewMode = TRANSACTION_VIEW_MODES.INVOICE,
 	importPayerOptions,
 	importSplitPayerOptions,
 	importDefaultPayerId,
@@ -627,6 +633,7 @@ export function TransactionsPage({
 				onAnticipate={handleAnticipate}
 				onViewAnticipationHistory={handleViewAnticipationHistory}
 				isSettlementLoading={(id) => settlementLoadingId === id}
+				viewMode={viewMode}
 			/>
 
 			<TransactionDialog

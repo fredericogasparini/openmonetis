@@ -28,6 +28,8 @@ import {
 	SETTLED_FILTER_VALUES,
 	TRANSACTION_CONDITIONS,
 	TRANSACTION_TYPES,
+	TRANSACTION_VIEW_MODES,
+	type TransactionViewMode,
 } from "@/features/transactions/lib/constants";
 import {
 	ACCOUNT_AUTO_INVOICE_NOTE_PREFIX,
@@ -219,6 +221,16 @@ export const resolveTransactionPagination = (
 	return { page, pageSize };
 };
 
+export const extractTransactionViewMode = (
+	params: ResolvedSearchParams,
+): TransactionViewMode => {
+	const raw = getSingleParam(params, "visao");
+	if (raw === TRANSACTION_VIEW_MODES.PURCHASE) {
+		return TRANSACTION_VIEW_MODES.PURCHASE;
+	}
+	return TRANSACTION_VIEW_MODES.INVOICE;
+};
+
 const normalizeLabel = (value: string | null | undefined) =>
 	value?.trim().length ? value.trim() : "Sem descrição";
 
@@ -384,6 +396,7 @@ export const buildTransactionWhere = ({
 	cardId,
 	accountId,
 	payerId,
+	viewMode = TRANSACTION_VIEW_MODES.INVOICE,
 }: {
 	userId: string;
 	period: string;
@@ -392,10 +405,12 @@ export const buildTransactionWhere = ({
 	cardId?: string;
 	accountId?: string;
 	payerId?: string;
+	viewMode?: TransactionViewMode;
 }): SQL[] => {
 	const where: SQL[] = [eq(transactions.userId, userId)];
 
 	if (filters.dateStartFilter || filters.dateEndFilter) {
+		// Filtro de data explícito sempre sobrepõe o modo de visão
 		if (filters.dateStartFilter) {
 			where.push(
 				gte(
@@ -413,7 +428,17 @@ export const buildTransactionWhere = ({
 				),
 			);
 		}
+	} else if (viewMode === TRANSACTION_VIEW_MODES.PURCHASE) {
+		// Visão por data de compra: range do mês selecionado
+		const [yearStr, monthStr] = period.split("-");
+		const year = Number.parseInt(yearStr ?? "0", 10);
+		const month = Number.parseInt(monthStr ?? "1", 10);
+		const firstDay = new Date(year, month - 1, 1);
+		const lastDay = new Date(year, month, 0); // dia 0 do mês seguinte = último dia do mês
+		where.push(gte(transactions.purchaseDate, firstDay));
+		where.push(lte(transactions.purchaseDate, lastDay));
 	} else {
+		// Visão padrão: filtra pelo campo period (data da fatura)
 		where.push(eq(transactions.period, period));
 	}
 

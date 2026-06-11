@@ -16,6 +16,10 @@ import {
 } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { type ReactNode, useMemo, useState } from "react";
+import {
+	TRANSACTION_VIEW_MODES,
+	type TransactionViewMode,
+} from "@/features/transactions/lib/constants";
 import type {
 	TransactionsExportContext,
 	TransactionsPaginationState,
@@ -23,6 +27,13 @@ import type {
 import { EmptyState } from "@/shared/components/feedback/empty-state";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/shared/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -72,6 +83,7 @@ type TransactionsTableProps = {
 	onAnticipate?: (item: TransactionItem) => void;
 	onViewAnticipationHistory?: (item: TransactionItem) => void;
 	isSettlementLoading?: (id: string) => boolean;
+	viewMode?: TransactionViewMode;
 	showActions?: boolean;
 	showFilters?: boolean;
 };
@@ -107,6 +119,7 @@ export function TransactionsTable({
 	isSettlementLoading,
 	showActions = true,
 	showFilters = true,
+	viewMode = TRANSACTION_VIEW_MODES.INVOICE,
 }: TransactionsTableProps) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -286,6 +299,21 @@ export function TransactionsTable({
 		}
 	};
 
+	const handleViewModeChange = (nextMode: string) => {
+		const nextParams = new URLSearchParams(searchParams.toString());
+		if (nextMode === TRANSACTION_VIEW_MODES.PURCHASE) {
+			nextParams.set("visao", TRANSACTION_VIEW_MODES.PURCHASE);
+		} else {
+			nextParams.delete("visao");
+		}
+		nextParams.delete("page");
+		const target = nextParams.toString()
+			? `${pathname}?${nextParams.toString()}`
+			: pathname;
+		router.replace(target, { scroll: false });
+		setRowSelection({});
+	};
+
 	const showTopControls =
 		Boolean(createSlot) || Boolean(onMassAdd) || showFilters;
 
@@ -298,6 +326,23 @@ export function TransactionsTable({
 					{createSlot || onMassAdd ? (
 						<div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto">
 							{createSlot}
+							<Select value={viewMode} onValueChange={handleViewModeChange}>
+								<SelectTrigger
+									id="transactions-view-mode-select"
+									className="h-9 w-full text-sm border-dashed sm:w-[200px]"
+									aria-label="Alterar visão dos lançamentos"
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value={TRANSACTION_VIEW_MODES.INVOICE}>
+										Pela Data da Fatura
+									</SelectItem>
+									<SelectItem value={TRANSACTION_VIEW_MODES.PURCHASE}>
+										Pela Data da Compra
+									</SelectItem>
+								</SelectContent>
+							</Select>
 							{onMassAdd ? (
 								<Tooltip>
 									<TooltipTrigger asChild>

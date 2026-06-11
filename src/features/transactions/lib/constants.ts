@@ -46,3 +46,11 @@ export const AMOUNT_MIN_PARAM = "valorMin";
 export const AMOUNT_MAX_PARAM = "valorMax";
 export const DATE_START_PARAM = "dataInicio";
 export const DATE_END_PARAM = "dataFim";
+
+export const TRANSACTION_VIEW_MODES = {
+	INVOICE: "fatura",
+	PURCHASE: "compra",
+} as const;
+
+export type TransactionViewMode =
+	(typeof TRANSACTION_VIEW_MODES)[keyof typeof TRANSACTION_VIEW_MODES];
