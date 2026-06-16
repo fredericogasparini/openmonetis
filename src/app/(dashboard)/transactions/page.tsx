@@ -116,6 +116,7 @@ export default async function Page({ searchParams }: PageProps) {
 					}}
 					attachmentMaxSizeMb={userPreferences?.attachmentMaxSizeMb ?? 50}
 					viewMode={viewMode}
+					showViewMode={true}
 				/>
 			</LogoPrefetchProvider>
 		</main>

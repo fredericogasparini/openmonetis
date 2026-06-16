@@ -807,15 +807,15 @@ export function TransactionsFilters({
 			</div>
 
 			<div className="flex w-full gap-2 md:w-auto">
-				{viewModeButton && (
-					<div className="flex-1 md:flex-none *:w-full *:md:w-auto">
-						{viewModeButton}
-					</div>
-				)}
-
 				{exportButton && (
 					<div className="flex-1 md:flex-none *:w-full *:md:w-auto">
 						{exportButton}
+					</div>
+				)}
+
+				{viewModeButton && (
+					<div className="flex-1 md:flex-none *:w-full *:md:w-auto">
+						{viewModeButton}
 					</div>
 				)}
 

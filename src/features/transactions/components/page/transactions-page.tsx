@@ -78,6 +78,7 @@ interface TransactionsPageProps {
 	exportContext?: TransactionsExportContext;
 	attachmentMaxSizeMb?: number;
 	viewMode?: TransactionViewMode;
+	showViewMode?: boolean;
 	// Opções específicas para o dialog de importação (quando visualizando dados de outro usuário)
 	importPayerOptions?: SelectOption[];
 	importSplitPayerOptions?: SelectOption[];
@@ -111,6 +112,7 @@ export function TransactionsPage({
 	exportContext,
 	attachmentMaxSizeMb,
 	viewMode = TRANSACTION_VIEW_MODES.INVOICE,
+	showViewMode = false,
 	importPayerOptions,
 	importSplitPayerOptions,
 	importDefaultPayerId,
@@ -634,6 +636,7 @@ export function TransactionsPage({
 				onViewAnticipationHistory={handleViewAnticipationHistory}
 				isSettlementLoading={(id) => settlementLoadingId === id}
 				viewMode={viewMode}
+				showViewMode={showViewMode}
 			/>
 
 			<TransactionDialog

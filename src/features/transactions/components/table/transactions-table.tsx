@@ -87,6 +87,7 @@ type TransactionsTableProps = {
 	viewMode?: TransactionViewMode;
 	showActions?: boolean;
 	showFilters?: boolean;
+	showViewMode?: boolean;
 };
 
 function formatGroupDate(dateStr: string) {
@@ -121,6 +122,7 @@ export function TransactionsTable({
 	showActions = true,
 	showFilters = true,
 	viewMode = TRANSACTION_VIEW_MODES.INVOICE,
+	showViewMode = false,
 }: TransactionsTableProps) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -332,7 +334,7 @@ export function TransactionsTable({
 					Visualizar
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="start">
+			<DropdownMenuContent align="end">
 				{(() => {
 					const isInvoice = viewMode === TRANSACTION_VIEW_MODES.INVOICE;
 					const isPurchase = viewMode === TRANSACTION_VIEW_MODES.PURCHASE;
@@ -467,7 +469,7 @@ export function TransactionsTable({
 							accountCardOptions={accountCardFilterOptions}
 							className="w-full lg:flex-1 lg:justify-end"
 							hideAdvancedFilters={hasOtherUserData}
-							viewModeButton={viewModeButton}
+							viewModeButton={showViewMode ? viewModeButton : undefined}
 							exportButton={
 								selectedPeriod ? (
 									<TransactionsExport
