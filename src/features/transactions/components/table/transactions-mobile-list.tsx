@@ -41,6 +41,8 @@ type TransactionsMobileListProps = {
 	onToggleSettlement?: (item: TransactionItem) => void;
 	onAnticipate?: (item: TransactionItem) => void;
 	onViewAnticipationHistory?: (item: TransactionItem) => void;
+	onConvertToInstallment?: (item: TransactionItem) => void;
+	onConvertToRecurring?: (item: TransactionItem) => void;
 	isSettlementLoading: (id: string) => boolean;
 	showActions?: boolean;
 };
@@ -63,6 +65,8 @@ export function TransactionsMobileList({
 	onToggleSettlement,
 	onAnticipate,
 	onViewAnticipationHistory,
+	onConvertToInstallment,
+	onConvertToRecurring,
 	isSettlementLoading,
 	showActions = true,
 }: TransactionsMobileListProps) {
@@ -140,6 +144,8 @@ function TransactionMobileRow({
 	onToggleSettlement,
 	onAnticipate,
 	onViewAnticipationHistory,
+	onConvertToInstallment,
+	onConvertToRecurring,
 	isSettlementLoading,
 	showActions = true,
 }: TransactionMobileRowProps) {

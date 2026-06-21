@@ -80,6 +80,8 @@ type BuildColumnsArgs = {
 	onToggleSettlement?: (item: TransactionItem) => void;
 	onAnticipate?: (item: TransactionItem) => void;
 	onViewAnticipationHistory?: (item: TransactionItem) => void;
+	onConvertToInstallment?: (item: TransactionItem) => void;
+	onConvertToRecurring?: (item: TransactionItem) => void;
 	isSettlementLoading: (id: string) => boolean;
 	showActions: boolean;
 };
@@ -100,6 +102,8 @@ export function getTransactionColumns({
 	onToggleSettlement,
 	onAnticipate,
 	onViewAnticipationHistory,
+	onConvertToInstallment,
+	onConvertToRecurring,
 	isSettlementLoading,
 	showActions,
 }: BuildColumnsArgs): ColumnDef<TransactionItem>[] {
@@ -113,6 +117,8 @@ export function getTransactionColumns({
 	const handleToggleSettlement = onToggleSettlement ?? noop;
 	const handleAnticipate = onAnticipate ?? noop;
 	const handleViewAnticipationHistory = onViewAnticipationHistory ?? noop;
+	const handleConvertToInstallment = onConvertToInstallment ?? noop;
+	const handleConvertToRecurring = onConvertToRecurring ?? noop;
 
 	const columns: ColumnDef<TransactionItem>[] = [
 		{
@@ -493,6 +499,12 @@ export function getTransactionColumns({
 						onRefund={handleRefund}
 						onAnticipate={handleAnticipate}
 						onViewAnticipationHistory={handleViewAnticipationHistory}
+						onConvertToInstallment={
+							onConvertToInstallment ? handleConvertToInstallment : undefined
+						}
+						onConvertToRecurring={
+							onConvertToRecurring ? handleConvertToRecurring : undefined
+						}
 					/>
 				</div>
 			),

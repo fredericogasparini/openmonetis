@@ -80,6 +80,8 @@ type TransactionsTableProps = {
 	onBulkImport?: (items: TransactionItem[]) => void;
 	onViewDetails?: (item: TransactionItem) => void;
 	onRefund?: (item: TransactionItem) => void;
+	onConvertToInstallment?: (item: TransactionItem) => void;
+	onConvertToRecurring?: (item: TransactionItem) => void;
 	onToggleSettlement?: (item: TransactionItem) => void;
 	onAnticipate?: (item: TransactionItem) => void;
 	onViewAnticipationHistory?: (item: TransactionItem) => void;
@@ -115,6 +117,8 @@ export function TransactionsTable({
 	onBulkImport,
 	onViewDetails,
 	onRefund,
+	onConvertToInstallment,
+	onConvertToRecurring,
 	onToggleSettlement,
 	onAnticipate,
 	onViewAnticipationHistory,
@@ -150,6 +154,8 @@ export function TransactionsTable({
 				onConfirmDelete,
 				onViewDetails,
 				onRefund,
+				onConvertToInstallment,
+				onConvertToRecurring,
 				onToggleSettlement,
 				onAnticipate,
 				onViewAnticipationHistory,
@@ -164,6 +170,8 @@ export function TransactionsTable({
 			onConfirmDelete,
 			onViewDetails,
 			onRefund,
+			onConvertToInstallment,
+			onConvertToRecurring,
 			onToggleSettlement,
 			onAnticipate,
 			onViewAnticipationHistory,

@@ -49,6 +49,8 @@ const categoryGroupByTransactionType = {
 	income: "receita",
 } as const;
 
+const normalizeCategoryName = (value: string) => value.trim().toLowerCase();
+
 interface ImportPageProps {
 	payerOptions: SelectOption[];
 	accountOptions: SelectOption[];
@@ -108,8 +110,18 @@ export function ImportPage({
 
 				setRows(
 					stmt.transactions.map((t) => {
-						const mappedCategoryId =
+						let mappedCategoryId =
 							categoryMappings[normalizeDescriptionKey(t.description)] ?? null;
+
+						if (t.categoryRaw) {
+							const categoryRaw = normalizeCategoryName(t.categoryRaw);
+							const matchedOption = categoryOptions.find(
+								(opt) => normalizeCategoryName(opt.label) === categoryRaw,
+							);
+							if (matchedOption) {
+								mappedCategoryId = matchedOption.value;
+							}
+						}
 
 						return {
 							...t,
@@ -129,7 +141,7 @@ export function ImportPage({
 				setIsChecking(false);
 			}
 		},
-		[isCategoryCompatible, payerId],
+		[isCategoryCompatible, payerId, categoryOptions],
 	);
 
 	// Pré-seleciona cartão ou conta com base no tipo detectado no OFX
