@@ -25,8 +25,12 @@ import { revalidateForEntity } from "@/shared/lib/actions/helpers";
 import { db } from "@/shared/lib/db";
 import { INVOICE_PAYMENT_STATUS } from "@/shared/lib/invoices";
 import { noteSchema, uuidSchema } from "@/shared/lib/schemas/common";
-import { advanceDateByInterval, addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
-import { addMonthsToPeriod, dateToPeriod, MONTH_NAMES } from "@/shared/utils/period";
+import {
+	addMonthsToDate,
+	advanceDateByInterval,
+	parseLocalDateString,
+} from "@/shared/utils/date";
+import { addMonthsToPeriod, MONTH_NAMES } from "@/shared/utils/period";
 
 // ============================================================================
 // Authorization Validation Functions
@@ -351,9 +355,7 @@ const baseFields = z.object({
 		.min(1, "Selecione uma recorrência válida.")
 		.max(60, "Selecione uma recorrência válida.")
 		.optional(),
-	recurrenceInterval: z.enum(RECURRENCE_INTERVALS)
-		.optional()
-		.default("Mensal"),
+	recurrenceInterval: z.enum(RECURRENCE_INTERVALS).optional().default("Mensal"),
 	dueDate: z
 		.string()
 		.trim()
@@ -792,10 +794,15 @@ export const buildTransactionRecords = ({
 		const recurrenceInterval = data.recurrenceInterval ?? "Mensal";
 
 		for (let index = 0; index < recurrenceTotal; index += 1) {
-			const recurrencePurchaseDate = advanceDateByInterval(purchaseDate, index, recurrenceInterval);
-			
+			const recurrencePurchaseDate = advanceDateByInterval(
+				purchaseDate,
+				index,
+				recurrenceInterval,
+			);
+
 			const monthDiff =
-				(recurrencePurchaseDate.getFullYear() - purchaseDate.getFullYear()) * 12 +
+				(recurrencePurchaseDate.getFullYear() - purchaseDate.getFullYear()) *
+					12 +
 				(recurrencePurchaseDate.getMonth() - purchaseDate.getMonth());
 			const recurrencePeriod = addMonthsToPeriod(period, monthDiff);
 

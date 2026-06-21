@@ -90,7 +90,11 @@ export default function MonthNavigation() {
 				/>
 
 				<div className="flex min-w-0 items-center">
-					<Popover open={isPickerOpen} onOpenChange={setIsPickerOpen} modal={false}>
+					<Popover
+						open={isPickerOpen}
+						onOpenChange={setIsPickerOpen}
+						modal={false}
+					>
 						<PopoverTrigger asChild>
 							<Button
 								variant="ghost"

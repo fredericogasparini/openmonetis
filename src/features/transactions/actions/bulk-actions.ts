@@ -16,8 +16,12 @@ import {
 	sendPayerAutoEmails,
 } from "@/shared/lib/payers/notifications";
 import type { ActionResult } from "@/shared/lib/types/actions";
-import { advanceDateByInterval, addMonthsToDate, parseLocalDateString } from "@/shared/utils/date";
-import { addMonthsToPeriod, dateToPeriod, parsePeriod } from "@/shared/utils/period";
+import {
+	addMonthsToDate,
+	advanceDateByInterval,
+	parseLocalDateString,
+} from "@/shared/utils/date";
+import { addMonthsToPeriod, parsePeriod } from "@/shared/utils/period";
 import { cleanupAttachmentsAfterTransactionDelete } from "./attachments";
 import {
 	centsToDecimalString,
@@ -273,23 +277,34 @@ export async function updateTransactionBulkAction(
 			interval: string,
 		) => {
 			if (interval === "Diário") {
-				return Math.round((targetDate.getTime() - baseDate.getTime()) / 86400000);
+				return Math.round(
+					(targetDate.getTime() - baseDate.getTime()) / 86400000,
+				);
 			}
 			if (interval === "Semanal") {
-				return Math.round((targetDate.getTime() - baseDate.getTime()) / (86400000 * 7));
+				return Math.round(
+					(targetDate.getTime() - baseDate.getTime()) / (86400000 * 7),
+				);
 			}
 			if (interval === "Quinzenal") {
-				return Math.round((targetDate.getTime() - baseDate.getTime()) / (86400000 * 14));
+				return Math.round(
+					(targetDate.getTime() - baseDate.getTime()) / (86400000 * 14),
+				);
 			}
 			const calendarMonthDiff =
 				(targetDate.getFullYear() - baseDate.getFullYear()) * 12 +
 				(targetDate.getMonth() - baseDate.getMonth());
 			switch (interval) {
-				case "Bimestral": return Math.round(calendarMonthDiff / 2);
-				case "Trimestral": return Math.round(calendarMonthDiff / 3);
-				case "Semestral": return Math.round(calendarMonthDiff / 6);
-				case "Anual": return Math.round(calendarMonthDiff / 12);
-				default: return calendarMonthDiff;
+				case "Bimestral":
+					return Math.round(calendarMonthDiff / 2);
+				case "Trimestral":
+					return Math.round(calendarMonthDiff / 3);
+				case "Semestral":
+					return Math.round(calendarMonthDiff / 6);
+				case "Anual":
+					return Math.round(calendarMonthDiff / 12);
+				default:
+					return calendarMonthDiff;
 			}
 		};
 
@@ -323,9 +338,18 @@ export async function updateTransactionBulkAction(
 				return undefined;
 			}
 
-			if (existing.condition === "Recorrente" && existing.period && referencePurchaseDate && record.purchaseDate) {
+			if (
+				existing.condition === "Recorrente" &&
+				existing.period &&
+				referencePurchaseDate &&
+				record.purchaseDate
+			) {
 				const interval = existing.recurrenceInterval ?? "Mensal";
-				const offset = getRecurrenceOffset(referencePurchaseDate, record.purchaseDate, interval);
+				const offset = getRecurrenceOffset(
+					referencePurchaseDate,
+					record.purchaseDate,
+					interval,
+				);
 				return advanceDateByInterval(basePurchaseDate, offset, interval);
 			}
 

@@ -308,7 +308,6 @@ export function advanceDateByInterval(
 			return addMonthsToDate(value, offset * 6);
 		case "Anual":
 			return addMonthsToDate(value, offset * 12);
-		case "Mensal":
 		default:
 			return addMonthsToDate(value, offset);
 	}

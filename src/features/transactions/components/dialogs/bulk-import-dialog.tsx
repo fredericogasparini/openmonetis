@@ -148,7 +148,7 @@ export function BulkImportDialog({
 							: undefined,
 					recurrenceInterval:
 						item.condition === "Recorrente" && item.recurrenceInterval
-							? item.recurrenceInterval as CreateTransactionInput["recurrenceInterval"]
+							? (item.recurrenceInterval as CreateTransactionInput["recurrenceInterval"])
 							: "Mensal",
 					dueDate:
 						item.paymentMethod === "Boleto" && item.dueDate

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { RECURRENCE_INTERVALS, TRANSACTION_CONDITIONS } from "@/features/transactions/lib/constants";
+import {
+	RECURRENCE_INTERVALS,
+	TRANSACTION_CONDITIONS,
+} from "@/features/transactions/lib/constants";
 import { Label } from "@/shared/components/ui/label";
 import {
 	Popover,
@@ -97,16 +100,16 @@ export function ConditionSection({
 	const installmentCount = Number(formState.installmentCount);
 	const installmentSummary =
 		showInstallments &&
-			formState.installmentCount &&
-			!Number.isNaN(installmentCount) &&
-			installmentCount > 0
+		formState.installmentCount &&
+		!Number.isNaN(installmentCount) &&
+		installmentCount > 0
 			? getInstallmentLabel(installmentCount)
 			: null;
 	const startInstallmentOptions =
 		showInstallments &&
-			formState.installmentCount &&
-			!Number.isNaN(installmentCount) &&
-			installmentCount > 0
+		formState.installmentCount &&
+		!Number.isNaN(installmentCount) &&
+		installmentCount > 0
 			? Array.from({ length: installmentCount }, (_, index) => index + 1)
 			: [];
 
@@ -177,7 +180,9 @@ export function ConditionSection({
 						<Label htmlFor="recurrenceInterval">Frequência</Label>
 						<Select
 							value={formState.recurrenceInterval}
-							onValueChange={(value) => onFieldChange("recurrenceInterval", value)}
+							onValueChange={(value) =>
+								onFieldChange("recurrenceInterval", value)
+							}
 						>
 							<SelectTrigger id="recurrenceInterval" className="w-full">
 								<SelectValue placeholder="Selecione" />
