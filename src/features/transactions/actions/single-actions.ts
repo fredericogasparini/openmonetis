@@ -23,6 +23,7 @@ import {
 	parseLocalDateString,
 } from "@/shared/utils/date";
 import { copyAttachmentsForImport } from "../lib/attachment-copy";
+import { RECURRENCE_INTERVALS } from "../lib/constants";
 import { detectInstallmentFromName } from "../lib/installment-detection";
 import { cleanupAttachmentsAfterTransactionDelete } from "./attachments";
 import {
@@ -555,6 +556,7 @@ export async function convertTransactionToInstallmentAction(
 				startInstallment: 1,
 				dueDate: existing.dueDate?.toISOString().slice(0, 10),
 				isSettled: null,
+				recurrenceInterval: "Mensal",
 			},
 			userId: user.id,
 			period: existing.period,
@@ -724,6 +726,7 @@ export async function convertTransactionToRecurringAction(
 				categoryId: existing.categoryId,
 				note: existing.note,
 				recurrenceCount: data.recurrenceCount,
+				recurrenceInterval: (existing.recurrenceInterval ?? "Mensal") as (typeof RECURRENCE_INTERVALS)[number],
 				dueDate: existing.dueDate?.toISOString().slice(0, 10),
 				boletoPaymentDate: existing.boletoPaymentDate
 					?.toISOString()
